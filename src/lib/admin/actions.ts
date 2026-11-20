@@ -14,6 +14,7 @@ export interface ActionResult {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function friendly(err: { message: string; code?: string }): string {
+  if (err.message.startsWith("sermon_policy: ")) return "Not published: " + err.message.slice("sermon_policy: ".length) + ". Save it as a draft until it is verified.";
   if (err.code === "23505") return "Another item already uses this URL slug. Choose a different one.";
   if (err.code === "42501" || /row-level security|permission denied/i.test(err.message)) return "You don't have permission to make this change.";
   if (err.code === "23514") return "One of the values is not allowed. Please check the form.";

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, CalendarPlus, Clock, MapPin } from "lucide-react";
-import { getEvent, getEvents } from "@/lib/content";
+import { getEvent, getEvents, isPageVisible } from "@/lib/content";
 import { formatEventDateLong, formatTime, googleCalendarUrl, isEventPast } from "@/lib/format";
 
 export const revalidate = 300;
@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
+  if (!(await isPageVisible("events"))) notFound();
   const e = await getEvent((await params).slug);
   if (!e) notFound();
   const isPast = isEventPast(e);

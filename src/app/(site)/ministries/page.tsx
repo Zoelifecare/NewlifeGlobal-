@@ -1,8 +1,9 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getMinistries } from "@/lib/content";
+import { getMinistries, isPageVisible } from "@/lib/content";
 import { PageHero } from "@/components/site/page-hero";
 import { SectionHead } from "@/components/site/section-head";
 import { CtaBand } from "@/components/site/cta-band";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MinistriesPage() {
+  if (!(await isPageVisible("ministries"))) notFound();
   const ministries = await getMinistries();
   const hero = ministries[0]?.image;
   return (

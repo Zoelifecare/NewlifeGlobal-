@@ -66,3 +66,32 @@ audit_logs (append-only, written by trigger) ; rate_limits (RPC only)
 Ministry managers cannot change a ministry's slug, status, publication date or order (trigger guard).
 
 Tests for these rules are in `tests/db/rls.test.mjs`. They run the real migrations in an embedded Postgres (PGlite) with Supabase-compatible `auth.uid()` and role switching.
+
+## CMS round 2: `20261120000100_cms.sql`
+
+| Object | Purpose |
+|---|---|
+| `church_content` | Identity sections: `key`, `label`, `requires_approval`, `draft`, `published`, `status` (draft / pending / published / needs_confirmation), review and approval fields |
+| `published_church_content` (view) | The only public read path: `key`, `published`, `published_at` where published |
+| `content_versions` | Version history for identity content and site settings (`event`: saved / submitted / published / rejected / restored) |
+| Functions | `save_church_content_draft`, `submit_church_content`, `publish_church_content`, `reject_church_content`, `unpublish_church_content`, `restore_content_version` |
+| `audit_logs` + columns | `old_values`, `new_values`, `outcome` |
+| `sermons` + columns | `location`, `preached_in_arizona`, `preacher_verified`, `location_verified`; trigger `sermons_policy` |
+| `leadership` + column | `publish_sermons_anywhere` |
+| `events` + column | `ministry_id`; ministry managers may insert, update and delete their ministry's events |
+| `ministries` + column | `is_featured` |
+| `gallery_categories` + columns | `description`, `is_visible`, `cover_media_id` (albums; hidden albums not public) |
+| `dashboard_counts()` | adds `approvals_pending`, `needs_confirmation` |
+
+Settings keys added: `site.statement` (replaces `site.affiliation`), `site.giving`, `site.navigation`, `site.pages`, `site.visit_faq`.
+
+### RLS additions
+
+| Data | anon | content_editor | ministry_manager | super_admin |
+|---|---|---|---|---|
+| Identity content (published) | read via view | read | read | read |
+| Identity drafts | — | read, save, submit; publish if no approval needed | — | all, including approve |
+| Content versions | — | read, restore | — | read, restore |
+| Events of own ministry | — | all | create / edit / delete | all |
+
+`supabase/identity-correction.sql` (generated) removes the Rwanda-related seed rows from databases seeded before 2026-11-20.

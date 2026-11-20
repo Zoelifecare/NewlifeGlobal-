@@ -5,10 +5,11 @@ import type { ServiceTime, SiteSettings } from "@/lib/content/types";
 import { saveSettings } from "@/lib/admin/site-actions";
 import { btnPrimary, inputCls } from "./ui";
 
-export function SettingsForm({ s }: { s: SiteSettings }) {
+export function SettingsForm({ s, logos }: { s: SiteSettings; logos: { url: string; alt: string }[] }) {
   const [state, action, pending] = useActionState(saveSettings, null);
   const [services, setServices] = useState<ServiceTime[]>(s.services);
   const [social, setSocial] = useState(s.social);
+  const [logo, setLogo] = useState(s.logo.color);
 
   const F = ({ name, label, value, type = "text", max = 200 }: { name: string; label: string; value?: string | null; type?: string; max?: number }) => (
     // plain helper (called, not rendered as a component) so inputs keep their state across re-renders
@@ -22,12 +23,28 @@ export function SettingsForm({ s }: { s: SiteSettings }) {
     >
       <input type="hidden" name="services" value={JSON.stringify(services)} />
       <input type="hidden" name="social" value={JSON.stringify(social)} />
+      <input type="hidden" name="logo_url" value={logo} />
+
+      <Section title="Logo & brand assets" note="Choose the approved logo from the media library (upload it there first). The cross mark and wordmark should not be altered.">
+        <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
+          <span className="flex h-16 w-48 items-center justify-center rounded-md border border-line bg-white p-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logo} alt="Current logo" className="max-h-full max-w-full object-contain" />
+          </span>
+          <label className="grid flex-1 gap-1 text-sm font-medium">Logo file
+            <select value={logo} onChange={(e) => setLogo(e.target.value)} className={inputCls}>
+              {!logos.some((l) => l.url === logo) && <option value={logo}>Current logo</option>}
+              {logos.map((l) => <option key={l.url} value={l.url}>{l.alt || l.url}</option>)}
+            </select>
+          </label>
+        </div>
+      </Section>
 
       <Section title="Identity">
         {F({ name: "name", label: "Church name", value: s.name, max: 80, })}
         {F({ name: "short_name", label: "Short name", value: s.shortName, max: 80, })}
         {F({ name: "tagline", label: "Tagline", value: s.tagline, max: 120, })}
-        {F({ name: "affiliation", label: "Affiliation line", value: s.affiliation, max: 200, })}
+        {F({ name: "statement", label: "Short statement (footer & search engines)", value: s.statement, max: 200, })}
         <label className="grid gap-1 text-sm font-medium sm:col-span-2">Pillars (one per line)<textarea name="pillars" rows={3} defaultValue={s.pillars.join("\n")} className={inputCls} /></label>
         {F({ name: "verse_ref", label: "Anchor verse reference", value: s.verse.ref, max: 60, })}
         <label className="grid gap-1 text-sm font-medium sm:col-span-2">Anchor verse text<textarea name="verse_text" rows={2} defaultValue={s.verse.text} maxLength={500} className={inputCls} /></label>

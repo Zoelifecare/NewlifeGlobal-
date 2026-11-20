@@ -26,8 +26,8 @@ export default async function ResourceList({ params, searchParams }: {
 
   // Ministry managers: mark which rows they can edit (RLS enforces this regardless).
   const editable = (r: Record<string, unknown>) =>
-    staff.canEditContent || (res.key === "ministries" ? staff.ministryIds.includes(String(r.id)) : res.key === "gallery" ? staff.ministryIds.includes(String(r.ministry_id)) : false);
-  const canCreate = staff.canEditContent || (res.key === "gallery" && staff.ministryIds.length > 0);
+    staff.canEditContent || (res.key === "ministries" ? staff.ministryIds.includes(String(r.id)) : res.key === "gallery" || res.key === "events" ? staff.ministryIds.includes(String(r.ministry_id)) : false);
+  const canCreate = staff.canEditContent || ((res.key === "gallery" || res.key === "events") && staff.ministryIds.length > 0);
 
   return (
     <>

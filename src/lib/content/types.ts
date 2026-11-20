@@ -32,9 +32,45 @@ export interface SiteSettings {
   services: ServiceTime[];
   contact: { email: string | null; phone: string | null };
   social: { label: string; url: string }[];
-  affiliation: string;
+  /** One short line in the church's own words (footer, metadata). */
+  statement: string;
   logo: { color: string; white: string; alt: string };
+  giving: GivingSettings;
+  navigation: NavItem[];
+  /** Page visibility: hidden pages return 404 and drop out of menus. */
+  pages: Record<string, boolean>;
+  visitFaq: { q: string; a: string }[];
 }
+
+export interface GivingMethod {
+  label: string;
+  description: string;
+  /** Approved external giving link (https only). */
+  url: string | null;
+  /** Shown when there is no link, e.g. "Give during Sunday service". */
+  note: string | null;
+}
+
+export interface GivingSettings {
+  enabled: boolean;
+  methods: GivingMethod[];
+}
+
+export interface NavItem {
+  label: string;
+  href: string;
+  visible: boolean;
+  description?: string;
+  children?: NavItem[];
+}
+
+export interface ChurchContentValue {
+  title?: string;
+  body?: string;
+  items?: { title: string; text: string }[];
+}
+
+export type ChurchContent = Record<string, ChurchContentValue>;
 
 export interface HeroSlide {
   index: string;
@@ -83,6 +119,7 @@ export interface Ministry {
   joinUrl: string | null;
   leaders: { leader: Leader; roleTitle: string | null }[];
   sortOrder: number;
+  isFeatured: boolean;
 }
 
 export interface SermonCategory {
@@ -123,12 +160,14 @@ export interface ChurchEvent {
   registrationUrl: string | null;
   image: Media | null;
   isFeatured: boolean;
+  ministryId?: string | null;
 }
 
 export interface GalleryCategory {
   id: string;
   slug: string;
   name: string;
+  description?: string | null;
 }
 
 export interface GalleryItem {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, CalendarDays, Image as ImageIcon, Mail, Megaphone, Video } from "lucide-react";
+import { BookOpen, CalendarDays, Landmark, Image as ImageIcon, Mail, Megaphone, Video } from "lucide-react";
 import { requireStaff } from "@/lib/auth/staff";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, PageTitle, fmtDate } from "@/components/admin/ui";
@@ -23,6 +23,8 @@ export default async function Overview({ searchParams }: { searchParams: Promise
     { label: "Gallery items", value: c.gallery_items, href: "/admin/gallery", icon: ImageIcon, show: true },
     { label: "Unread messages", value: c.messages_unread, href: "/admin/messages", icon: Mail, show: staff.canEditContent, alert: true },
     { label: "New prayer requests", value: c.prayer_pending, href: "/admin/prayer", icon: BookOpen, show: staff.canReadPrayer, alert: true },
+    { label: "Changes awaiting approval", value: c.approvals_pending, href: "/admin/identity", icon: Landmark, show: staff.canEditContent, alert: true },
+    { label: "Sections needing confirmation", value: c.needs_confirmation, href: "/admin/identity", icon: Landmark, show: staff.canEditContent, alert: true },
   ].filter((t) => t.show);
 
   return (

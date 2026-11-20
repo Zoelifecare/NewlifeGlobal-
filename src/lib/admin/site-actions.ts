@@ -81,7 +81,7 @@ export async function saveSettings(_prev: ActionResult | null, fd: FormData): Pr
     { key: "site.name", value: txt(fd.get("name"), 80) || "New Life Global" },
     { key: "site.short_name", value: txt(fd.get("short_name"), 80) },
     { key: "site.tagline", value: txt(fd.get("tagline"), 120) },
-    { key: "site.affiliation", value: txt(fd.get("affiliation"), 200) },
+    { key: "site.statement", value: txt(fd.get("statement"), 200) },
     { key: "site.pillars", value: txt(fd.get("pillars"), 300).split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 5) },
     { key: "site.verse", value: { ref: txt(fd.get("verse_ref"), 60), text: txt(fd.get("verse_text"), 500) } },
     { key: "site.address", value: {
@@ -93,6 +93,13 @@ export async function saveSettings(_prev: ActionResult | null, fd: FormData): Pr
     { key: "site.services", value: services },
     { key: "site.social", value: social },
   ];
+  // logo: a file from the media library (local /media path or Supabase storage URL)
+  const logo = txt(fd.get("logo_url"), 500);
+  if (logo) {
+    const okLogo = logo.startsWith("/media/") || /^https:\/\/[a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\//i.test(logo);
+    if (!okLogo) return { ok: false, message: "Choose the logo from the media library." };
+    rows.push({ key: "site.logo", value: { color: logo, white: logo, alt: txt(fd.get("name"), 80) || "New Life Global" } });
+  }
   const { error } = await supabase.from("site_settings").upsert(rows, { onConflict: "key" });
   if (error) return { ok: false, message: "Could not save settings." };
   revalidatePath("/", "layout");

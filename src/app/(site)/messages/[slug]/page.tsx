@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { getSermon, getSermons, youTubeId } from "@/lib/content";
+import { getSermon, getSermons, youTubeId, isPageVisible } from "@/lib/content";
 import { VideoEmbed } from "@/components/site/video-embed";
 import { SermonCard } from "@/components/site/sermon-card";
 import { formatSermonDate } from "@/lib/format";
@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function SermonPage({ params }: { params: Promise<{ slug: string }> }) {
+  if (!(await isPageVisible("messages"))) notFound();
   const s = await getSermon((await params).slug);
   if (!s) notFound();
   const all = await getSermons();

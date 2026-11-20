@@ -23,7 +23,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
       {!data?.length ? <EmptyState title="No activity recorded yet" /> : (
         <Card className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="border-b border-line text-xs uppercase tracking-wider text-muted"><tr><th className="px-4 py-3">When</th><th className="px-4 py-3">Who</th><th className="px-4 py-3">Action</th><th className="px-4 py-3">Item</th><th className="px-4 py-3">Changed fields</th></tr></thead>
+            <thead className="border-b border-line text-xs uppercase tracking-wider text-muted"><tr><th className="px-4 py-3">When</th><th className="px-4 py-3">Who</th><th className="px-4 py-3">Action</th><th className="px-4 py-3">Item</th><th className="px-4 py-3">Change (previous → new)</th><th className="px-4 py-3">Outcome</th></tr></thead>
             <tbody>
               {data.map((a) => (
                 <tr key={a.id} className="border-b border-line last:border-0 align-top">
@@ -31,7 +31,22 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
                   <td className="px-4 py-3">{who(a.actor_id)}</td>
                   <td className="px-4 py-3 capitalize">{a.action}</td>
                   <td className="px-4 py-3"><Link className="text-blue-deep" href={`/admin/audit?table=${a.table_name}`}>{a.table_name.replace(/_/g, " ")}</Link>{a.summary && <span className="block text-xs text-muted">{a.summary}</span>}</td>
-                  <td className="px-4 py-3 text-xs text-muted">{a.changed?.join(", ") ?? "—"}</td>
+                  <td className="max-w-md px-4 py-3 text-xs text-muted">
+                    {a.old_values || a.new_values ? (
+                      <details>
+                        <summary className="cursor-pointer">{a.changed?.join(", ") || (a.action === "insert" ? "created" : "deleted")}</summary>
+                        <dl className="mt-2 grid gap-1">
+                          {Object.keys({ ...(a.old_values ?? {}), ...(a.new_values ?? {}) }).slice(0, 12).map((k) => (
+                            <div key={k} className="grid gap-0.5">
+                              <dt className="font-semibold text-ink">{k}</dt>
+                              <dd className="m-0 break-words"><span className="line-through">{short(a.old_values?.[k])}</span> → <span className="text-ink">{short(a.new_values?.[k])}</span></dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </details>
+                    ) : (a.changed?.join(", ") ?? "Private content (not logged)")}
+                  </td>
+                  <td className="px-4 py-3 text-xs">{a.outcome ?? ""}</td>
                 </tr>
               ))}
             </tbody>
@@ -45,4 +60,10 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
       </nav>
     </>
   );
+}
+
+function short(v: unknown) {
+  if (v === undefined || v === null) return "(empty)";
+  const t = typeof v === "string" ? v : JSON.stringify(v);
+  return t.length > 140 ? t.slice(0, 140) + "…" : t;
 }

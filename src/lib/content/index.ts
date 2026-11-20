@@ -6,7 +6,7 @@ import { isSupabaseConfigured, publicStorageUrl } from "@/lib/supabase/config";
 import { seed } from "./seed";
 import type {
   Announcement, ChurchEvent, GalleryCategory, GalleryItem, HomepageSection, Leader, Media, Ministry,
-  Sermon, SermonCategory, SiteSettings,
+  Sermon, SermonCategory, SiteSettings, ChurchContent, ChurchContentValue,
 } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -71,7 +71,7 @@ const mapLeader = (r: Row): Leader => ({
 const mapMinistry = (r: Row): Ministry => ({
   id: r.id, slug: r.slug, name: r.name, tagline: r.tagline, summary: r.summary, description: r.description,
   image: mapMedia(r.image), meetingSchedule: r.meeting_schedule, location: r.location, contactEmail: r.contact_email,
-  activities: r.activities ?? [], joinUrl: r.join_url, sortOrder: r.sort_order,
+  activities: r.activities ?? [], joinUrl: r.join_url, sortOrder: r.sort_order, isFeatured: Boolean(r.is_featured),
   leaders: ((r.ministry_leaders ?? []) as Row[])
     .filter((ml) => ml.leader)
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -99,7 +99,7 @@ const mapSermon = (r: Row): Sermon => {
 const mapEvent = (r: Row): ChurchEvent => ({
   id: r.id, slug: r.slug, title: r.title, summary: r.summary, description: r.description, category: r.category,
   startsAt: r.starts_at, endsAt: r.ends_at, venue: r.venue, address: r.address, registrationUrl: r.registration_url,
-  image: mapMedia(r.image), isFeatured: r.is_featured,
+  image: mapMedia(r.image), isFeatured: r.is_featured, ministryId: r.ministry_id ?? null,
 });
 
 const LEADER_SELECT = "*, photo:media_assets(*)";
@@ -115,10 +115,25 @@ const _getSettings = (async (): Promise<SiteSettings> => {
   const rows = must(await db().from("site_settings").select("key, value"), "settings") as Row[];
   const merged: Row = { ...seed.settings };
   for (const r of rows) {
-    if (r.key.startsWith("site.")) merged[camel(r.key.slice(5))] = r.value;
+    if (r.key.startsWith("site.") && r.value !== null) merged[camel(r.key.slice(5))] = r.value;
   }
   return merged as SiteSettings;
 });
+
+// ------------------------------------------------------------------ church identity (published values only)
+const _getChurchContent = (async (): Promise<ChurchContent> => {
+  if (!dbReady()) {
+    return Object.fromEntries(seed.churchContent.filter((c) => c.published).map((c) => [c.key, c.published!]));
+  }
+  const rows = must(await db().from("published_church_content").select("key, published"), "church content") as Row[];
+  return Object.fromEntries(rows.map((r) => [r.key, r.published as ChurchContentValue]));
+});
+
+/** Is a public page switched on in Church Identity & Settings? */
+export async function isPageVisible(key: string) {
+  const s = await getSettings();
+  return s.pages?.[key] !== false;
+}
 
 // ------------------------------------------------------------------ media
 const _getMediaByIds = (async (ids: string[]): Promise<Record<string, Media>> => {
@@ -219,7 +234,7 @@ const _getEvent = (async (slug: string): Promise<ChurchEvent | null> => {
 // ------------------------------------------------------------------ gallery
 const _getGalleryCategories = (async (): Promise<GalleryCategory[]> => {
   if (!dbReady()) return seed.galleryCategories;
-  return must(await db().from("gallery_categories").select("id, slug, name").order("sort_order"), "gallery categories") as GalleryCategory[];
+  return must(await db().from("gallery_categories").select("id, slug, name, description").order("sort_order"), "gallery categories") as GalleryCategory[];
 });
 
 const _getGallery = (async (): Promise<GalleryItem[]> => {
@@ -257,5 +272,6 @@ export const getEvent = cache(withSeedFallback("getEvent", _getEvent));
 export const getGalleryCategories = cache(withSeedFallback("getGalleryCategories", _getGalleryCategories));
 export const getGallery = cache(withSeedFallback("getGallery", _getGallery));
 export const getAnnouncements = cache(withSeedFallback("getAnnouncements", _getAnnouncements));
+export const getChurchContent = cache(withSeedFallback("getChurchContent", _getChurchContent));
 export const getSermons = withSeedFallback("getSermons", _getSermons);
 export const getEvents = withSeedFallback("getEvents", _getEvents);

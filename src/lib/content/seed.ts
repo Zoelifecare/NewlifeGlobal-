@@ -1,12 +1,14 @@
 /**
- * Verified starter content — the single source for `supabase/seed.sql` (see scripts/generate-seed.mjs)
- * and the read-only fallback used when Supabase is not configured.
+ * Verified starter content: the single source for `supabase/seed.sql` (see scripts/generate-seed.mjs)
+ * and the read-only fallback used when the database is unavailable.
  *
- * Every fact here is traceable to docs/research/references.md (R#) or owner-decisions.md (OD-#).
- * Edit live content in /admin — not here — once the database is connected.
+ * IDENTITY RULE (owner feedback 2026-11-20): New Life Global is an independent church in the United States.
+ * No Rwanda / Kigali / Africa New Life history, ministries, leadership stories or "25 years" narrative.
+ * Every fact here comes from the church's own Instagram (@newlifeglobalaz) or from the owner.
+ * Anything not yet confirmed is an unpublished draft (status "needs_confirmation"), never public.
  */
 import type {
-  Announcement, ChurchEvent, GalleryCategory, GalleryItem, HomepageSection, Leader, Media, Ministry,
+  Announcement, ChurchContentValue, ChurchEvent, GalleryCategory, GalleryItem, HomepageSection, Leader, Media, Ministry,
   Sermon, SermonCategory, SiteSettings,
 } from "./types";
 
@@ -14,7 +16,7 @@ const AZ = "-07:00"; // Arizona (no DST)
 const yt = (id: string) => `https://www.youtube.com/watch?v=${id}`;
 const ytThumb = (id: string) => `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
 
-// ------------------------------------------------------------------ media
+// ------------------------------------------------------------------ media (owner approved, @newlifeglobalaz)
 const m = (id: string, file: string, alt: string, category: string, source: string, extra: Partial<Media> = {}): Media => ({
   id, url: `/media/instagram/${file}.jpg`, kind: "image", alt, credit: "New Life Global AZ",
   sourceUrl: `https://www.instagram.com/p/${source}/`, category, ...extra,
@@ -25,7 +27,7 @@ export const seedMedia: Media[] = [
     const n = String(i + 1).padStart(2, "0");
     return m(`ig-rw-${n}`, `refresh-women-2026-${n}`, `Refresh Women 2026 conference at New Life Global, photo ${i + 1}`, "conferences", "DZdhdFGklcE");
   }),
-  m("ig-seat-saved", "sunday-seat-saved", "New Life Global invitation: a seat saved for you this Sunday", "services", "Dc7f_W0u-5_"),
+  m("ig-seat-saved", "sunday-seat-saved", "Preaching at New Life Global in Chandler", "services", "Dc7f_W0u-5_"),
   m("ig-fellowship", "sunday-fellowship-reel", "Sunday fellowship and praise at New Life Global", "worship", "DcaCLRBOIIi"),
   m("ig-serving", "serving-team", "Members of New Life Global serving on Sunday", "community", "Db9jqlBlA-2"),
   m("ig-sunday-school", "sunday-school-reel", "New Life Global Sunday School", "community", "DaTGyC9uiwW"),
@@ -34,10 +36,8 @@ export const seedMedia: Media[] = [
   m("ig-sundays-chandler", "sundays-chandler-reel", "Sunday service at New Life Global in Chandler, Arizona", "services", "DZqcJlTS2u-"),
   m("ig-rw-promo", "refresh-women-promo-reel", "Refresh Women 2026 worship promo", "conferences", "DY6dF-BuxuT"),
   m("ig-rw-save-date", "refresh-women-save-date-reel", "Refresh Women 2026 save the date", "conferences", "DYvv9hAuI2b"),
-  m("ig-anniversary", "anniversary-2026-flyer", "New Life Global 1st Anniversary flyer with Pastors Charles and Florence Mugisha", "celebrations", "DfKlx2vOXFA", { credit: "Florence Mugisha & New Life Global AZ" }),
+  m("ig-anniversary", "anniversary-2026-flyer", "New Life Global 1st Anniversary flyer", "celebrations", "DfKlx2vOXFA", { credit: "New Life Global AZ" }),
   m("ig-program", "church-program-flyer", "New Life Global church program: Sunday Service, Night Prayer, Night of Worship, Morning Glory", "services", "Da07hfnSJe-"),
-  { id: "yt-25-years", url: ytThumb("9-581YAL-Ys"), kind: "image", alt: "Africa New Life 25 Years of Transforming Lives thanksgiving service in Kigali", credit: "New Life Rwanda (YouTube)", sourceUrl: yt("9-581YAL-Ys"), category: "rwanda-ministry" },
-  { id: "yt-courage", url: ytThumb("8mEJiF-7SU8"), kind: "image", alt: "Worship at New Life Church, Kigali", credit: "New Life Rwanda (YouTube)", sourceUrl: yt("8mEJiF-7SU8"), category: "rwanda-ministry" },
 ];
 
 const media = (id: string): Media => {
@@ -68,118 +68,182 @@ export const seedSettings: SiteSettings = {
     { name: "Morning Glory", day: "Daily except Monday & Saturday", time: "5:00 AM", location: "Morning prayer", note: "Contact us to join" },
   ],
   contact: { email: null, phone: null },
-  social: [
-    { label: "Instagram", url: "https://www.instagram.com/newlifeglobalaz/" },
-    { label: "New Life Rwanda on YouTube", url: "https://www.youtube.com/@newliferwanda" },
-    { label: "Africa New Life", url: "https://www.africanewlife.org/" },
+  social: [{ label: "Instagram", url: "https://www.instagram.com/newlifeglobalaz/" }],
+  statement: "A place of love, a family of faith and a future of hope in Chandler, Arizona",
+  logo: { color: "/media/brand/nlc-logo-color.png", white: "/media/brand/nlc-logo-white.png", alt: "New Life Global" },
+  giving: { enabled: true, methods: [] }, // no approved giving provider yet: the Give page says so honestly
+  navigation: [
+    {
+      label: "About", href: "/about", visible: true, children: [
+        { label: "Who We Are", href: "/about", visible: true, description: "Welcome to New Life Global" },
+        { label: "Our Story", href: "/about#story", visible: true, description: "How our church began" },
+        { label: "Mission & Vision", href: "/about#mission", visible: true, description: "Why we exist" },
+        { label: "What We Believe", href: "/about#beliefs", visible: true, description: "Our core beliefs" },
+        { label: "Leadership", href: "/about#leadership", visible: true, description: "Meet our pastors" },
+      ],
+    },
+    { label: "Ministries", href: "/ministries", visible: true },
+    {
+      label: "Media", href: "/messages", visible: true, children: [
+        { label: "Messages", href: "/messages", visible: true, description: "Watch sermons" },
+        { label: "Gallery", href: "/gallery", visible: true, description: "Life together in pictures" },
+      ],
+    },
+    { label: "Events", href: "/events", visible: true },
+    {
+      label: "Connect", href: "/visit", visible: true, children: [
+        { label: "Plan Your Visit", href: "/visit", visible: true, description: "Times, location and what to expect" },
+        { label: "Prayer Requests", href: "/prayer", visible: true, description: "Share a request in confidence" },
+        { label: "Contact", href: "/contact", visible: true, description: "Send us a message" },
+      ],
+    },
   ],
-  affiliation: "A healthy church that transforms lives and nations through the Gospel of Jesus Christ and acts of compassion",
-  logo: { color: "/media/brand/nlc-logo-color.png", white: "/media/brand/nlc-logo-white.png", alt: "New Life" },
+  pages: { about: true, ministries: true, messages: true, events: true, gallery: true, prayer: true, visit: true, contact: true, give: true },
+  visitFaq: [
+    { q: "When do you meet?", a: "Every Sunday from 3:00 to 5:00 PM." },
+    { q: "Where do you meet?", a: "800 W Galveston St, Chandler, AZ 85225." },
+    { q: "Is there something for children?", a: "Yes. We have a growing Sunday School. Contact us if you have questions before your visit." },
+    { q: "Can I pray with the church during the week?", a: "Yes. Night Prayer is on the first Friday of each month at 9:00 PM, and Morning Glory prayer is at 5:00 AM every day except Monday and Saturday." },
+  ],
 };
 
-// ------------------------------------------------------------------ people
+// ------------------------------------------------------------------ church identity content
+// requiresApproval = super admin must approve before it goes public. Empty drafts await Pastor Charles.
+export interface SeedChurchContent {
+  key: string;
+  label: string;
+  sortOrder: number;
+  requiresApproval: boolean;
+  status: "draft" | "pending" | "published" | "needs_confirmation";
+  draft: ChurchContentValue;
+  published: ChurchContentValue | null;
+  note?: string;
+}
+
+const welcome: ChurchContentValue = {
+  title: "Welcome to New Life Global",
+  body: "A place of love, a family of faith, a future of hope. We gather every Sunday at 3:00 PM in Chandler, Arizona to worship, grow and serve together, and there is a seat saved for you.",
+};
+const expect: ChurchContentValue = {
+  title: "What to expect",
+  body: "Our Sunday service runs from 3:00 to 5:00 PM with worship, prayer and a message from the Word. Arrive a few minutes early and someone from our team will be glad to welcome you.",
+};
+const kids: ChurchContentValue = {
+  title: "Kids",
+  body: "We have a growing Sunday School for children. If you have questions before your visit, let us know in the form below.",
+};
+const giveIntro: ChurchContentValue = {
+  title: "Give",
+  body: "Thank you for supporting the ministry of New Life Global.",
+};
+
+export const seedChurchContent: SeedChurchContent[] = [
+  { key: "about_intro", label: "About New Life Global", sortOrder: 1, requiresApproval: false, status: "published", draft: welcome, published: welcome },
+  { key: "our_story", label: "Our Story", sortOrder: 2, requiresApproval: true, status: "needs_confirmation", draft: { title: "Our Story", body: "" }, published: null, note: "Awaiting the official church story from Pastor Charles." },
+  { key: "mission", label: "Mission", sortOrder: 3, requiresApproval: true, status: "needs_confirmation", draft: { title: "Our Mission", body: "" }, published: null, note: "Awaiting the official mission statement." },
+  { key: "vision", label: "Vision", sortOrder: 4, requiresApproval: true, status: "needs_confirmation", draft: { title: "Our Vision", body: "" }, published: null, note: "Awaiting the official vision statement." },
+  {
+    key: "core_values", label: "Core Values", sortOrder: 5, requiresApproval: true, status: "needs_confirmation",
+    draft: { title: "Our Values", items: [{ title: "Worship", text: "" }, { title: "Grow", text: "" }, { title: "Serve", text: "" }] }, published: null,
+    note: "Draft taken from the church program tagline (Worship • Grow • Serve). Confirm and add descriptions before publishing.",
+  },
+  { key: "beliefs", label: "What We Believe", sortOrder: 6, requiresApproval: true, status: "needs_confirmation", draft: { title: "What We Believe", items: [] }, published: null, note: "Awaiting the church's statement of faith." },
+  { key: "visit_intro", label: "Plan Your Visit: introduction", sortOrder: 7, requiresApproval: false, status: "published", draft: { title: "We saved you a seat.", body: "Whether you are new to church or looking for a church family, you are welcome at New Life Global." }, published: { title: "We saved you a seat.", body: "Whether you are new to church or looking for a church family, you are welcome at New Life Global." } },
+  { key: "visit_expect", label: "Plan Your Visit: what to expect", sortOrder: 8, requiresApproval: false, status: "published", draft: expect, published: expect },
+  { key: "visit_kids", label: "Plan Your Visit: kids", sortOrder: 9, requiresApproval: false, status: "published", draft: kids, published: kids },
+  { key: "give_intro", label: "Giving page introduction", sortOrder: 10, requiresApproval: false, status: "published", draft: giveIntro, published: giveIntro },
+];
+
+// ------------------------------------------------------------------ people (names and titles from the owner; bios await confirmation)
 const leader = (l: Omit<Leader, "photo"> & { photoId?: string }): Leader => ({
   ...l, photo: l.photoId ? media(l.photoId) : null,
 });
 
 export const seedLeaders: Leader[] = [
-  leader({
-    id: "ld-charles", slug: "charles-mugisha", name: "Rev. Dr. Charles Mugisha", title: "Founding Pastor",
-    roleGroup: "pastor", sortOrder: 1, needsReview: false, instagram: "https://www.instagram.com/charlesbmugisha/",
-    bio: "Pastor Charles Buregeya Mugisha is a pastor, global missionary and educator, and the founder and president of Africa New Life Ministries, which he began with his wife Florence in 2001. Born to a Rwandan family living as refugees, he studied theology at Reformed Theological College in Kampala, earned a master's degree at Multnomah University in Portland, Oregon, and a doctorate from Gordon Conwell Theological Seminary. He serves as lead pastor of New Life Bible Church in Kigali. Charles and Florence have raised five children.",
-  }),
-  leader({
-    id: "ld-florence", slug: "florence-mugisha", name: "Pastor Florence Mugisha", title: "Founding Pastor",
-    roleGroup: "pastor", sortOrder: 2, needsReview: false, instagram: "https://www.instagram.com/florence.mugisha/",
-    bio: "Pastor Florence Mugisha is a cofounder of Africa New Life Ministries and its Director of Women's Ministry. Growing up a Rwandan refugee in Uganda, she met Charles in college and later earned a master's degree from Multnomah University. She used her own savings to help sponsor the first children when Africa New Life began, and today she is a preacher and motivational speaker with a heart for women and families.",
-  }),
-  leader({
-    id: "ld-augustine", slug: "augustine-ndemezo", name: "Augustine Ndemezo", title: "Pastor",
-    roleGroup: "pastor", sortOrder: 3, needsReview: true, instagram: null,
-    bio: "Augustine Ndemezo serves on the leadership team of New Life Global and has served with Africa New Life Ministries in Rwanda.",
-  }),
-  leader({
-    id: "ld-enock", slug: "enock-rwakatale", name: "Pastor Enock Rwakatale", title: "Worship Pastor",
-    roleGroup: "pastor", sortOrder: 4, needsReview: true, instagram: null,
-    bio: "Pastor Enock leads worship at New Life Global, including Refresh Women 2026 and the church's 1st Anniversary celebration.",
-  }),
+  leader({ id: "ld-charles", slug: "charles-mugisha", name: "Pastor Charles Mugisha", title: "Pastor", roleGroup: "pastor", sortOrder: 1, needsReview: true, instagram: null, bio: null }),
+  leader({ id: "ld-florence", slug: "florence-mugisha", name: "Pastor Florence Mugisha", title: "Pastor", roleGroup: "pastor", sortOrder: 2, needsReview: true, instagram: null, bio: null }),
+  leader({ id: "ld-augustine", slug: "augustine-ndemezo", name: "Augustine Ndemezo", title: "Church Leadership", roleGroup: "pastor", sortOrder: 3, needsReview: true, instagram: null, bio: null }),
+  leader({ id: "ld-enock", slug: "enock-rwakatale", name: "Pastor Enock Rwakatale", title: "Worship Pastor", roleGroup: "pastor", sortOrder: 4, needsReview: true, instagram: null, bio: null }),
 ];
+/** Leaders whose sermons may be published wherever they preached (sermon rule 1). */
+export const publishAnywhereLeaders = ["ld-charles"];
 
-// ------------------------------------------------------------------ ministries
+// ------------------------------------------------------------------ ministries (from the church program and Instagram captions)
 export const seedMinistries: Ministry[] = [
   {
     id: "mn-worship", slug: "worship", name: "Worship", tagline: "Lively, heartfelt worship",
-    summary: "Leading the church into God's presence on Sundays and at our Friday Night of Worship.",
-    description: "Worship sits at the heart of New Life. Our worship team leads the Sunday service and our Friday Night of Worship, where we spend unhurried time in praise and in the presence of God.",
+    summary: "Leading the church in worship on Sundays and at our Friday Night of Worship.",
+    description: "Our worship team leads the Sunday service and our Friday Night of Worship.",
     image: media("ig-rw-09"), meetingSchedule: "Sundays 3:00 PM · Fridays 8:00 PM", location: "Chandler & Gilbert, AZ",
-    contactEmail: null, activities: ["Sunday worship", "Night of Worship", "Special services"], joinUrl: "/contact?topic=worship",
-    leaders: [{ leader: seedLeaders[3], roleTitle: "Worship Pastor" }], sortOrder: 1,
+    contactEmail: null, activities: ["Sunday worship", "Night of Worship"], joinUrl: "/contact?topic=worship",
+    leaders: [{ leader: seedLeaders[3], roleTitle: "Worship Pastor" }], sortOrder: 1, isFeatured: true,
   },
   {
     id: "mn-prayer", slug: "prayer", name: "Prayer", tagline: "A praying church",
     summary: "Night Prayer every first Friday and Morning Glory prayer at 5 AM.",
-    description: "We take God's Word and prayer seriously. On the first Friday of each month we gather for Night Prayer, and Morning Glory prayer meets at 5:00 AM every day except Monday and Saturday.",
+    description: "On the first Friday of each month we gather for Night Prayer, and Morning Glory prayer meets at 5:00 AM every day except Monday and Saturday.",
     image: media("ig-night-prayer"), meetingSchedule: "First Friday 9:00 PM · Morning Glory 5:00 AM", location: "800 W Galveston St, Chandler",
     contactEmail: null, activities: ["Night Prayer", "Morning Glory", "Prayer requests"], joinUrl: "/prayer",
-    leaders: [], sortOrder: 2,
+    leaders: [], sortOrder: 2, isFeatured: true,
   },
   {
     id: "mn-women", slug: "women", name: "Women", tagline: "Refresh Women",
-    summary: "Encouraging women to grow in faith together, and home of the Refresh Women conference.",
-    description: "Our women's ministry gathers women of every age to laugh, worship, learn and grow together. In 2026 we hosted Refresh Women, a weekend of worship and teaching that left many refreshed and encouraged.",
+    summary: "Women growing in faith together, and home of the Refresh Women conference.",
+    description: "In 2026 we hosted Refresh Women: we laughed, worshipped, learned and left refreshed and encouraged.",
     image: media("ig-rw-03"), meetingSchedule: "Announced through our events page", location: "Chandler, AZ",
-    contactEmail: null, activities: ["Refresh Women conference", "Fellowship", "Bible teaching"], joinUrl: "/contact?topic=women",
-    leaders: [], sortOrder: 3,
+    contactEmail: null, activities: ["Refresh Women conference"], joinUrl: "/contact?topic=women",
+    leaders: [], sortOrder: 3, isFeatured: false,
   },
   {
     id: "mn-children", slug: "children", name: "Children", tagline: "Sunday School",
     summary: "Our growing Sunday School shapes the next generation with God's Word.",
-    description: "We believe our children are the next generation that will carry the Gospel to the nations. Sunday School meets during the Sunday service and is growing every week.",
-    image: media("ig-sunday-school"), meetingSchedule: "Sundays during the 3:00 PM service", location: "800 W Galveston St, Chandler",
-    contactEmail: null, activities: ["Sunday School", "Bible stories", "Worship for kids"], joinUrl: "/visit#kids",
-    leaders: [], sortOrder: 4,
+    description: "We believe our children are the next generation that will carry the Gospel to the nations, and our Sunday School is growing every week.",
+    image: media("ig-sunday-school"), meetingSchedule: "Sundays", location: "800 W Galveston St, Chandler",
+    contactEmail: null, activities: ["Sunday School"], joinUrl: "/visit#kids",
+    leaders: [], sortOrder: 4, isFeatured: true,
   },
   {
     id: "mn-serve", slug: "serve", name: "Serve Team", tagline: "Serving God and His people",
-    summary: "Hospitality, ushering and practical care that make every Sunday feel like home.",
-    description: "Serving the Lord and His people is a gift we never take for granted. Our serve team welcomes guests, prepares the room and cares for our church family each week.",
+    summary: "Serving the Lord and His people is a gift we never take for granted.",
+    description: "Serving the Lord and His people is a gift we never take for granted.",
     image: media("ig-serving"), meetingSchedule: "Sundays", location: "800 W Galveston St, Chandler",
-    contactEmail: null, activities: ["Welcome & hospitality", "Ushering", "Setup"], joinUrl: "/contact?topic=serve",
-    leaders: [], sortOrder: 5,
+    contactEmail: null, activities: ["Sunday serving"], joinUrl: "/contact?topic=serve",
+    leaders: [], sortOrder: 5, isFeatured: false,
   },
 ];
 
-// ------------------------------------------------------------------ messages (New Life Rwanda YouTube, OD-6)
+// ------------------------------------------------------------------ messages
+// Sermon rules: Pastor Charles' sermons wherever he preached; other preachers only when preached at the
+// Arizona church; preacher and location verified before publication.
 export const seedSermonCategories: SermonCategory[] = [
   { id: "sc-family", slug: "marriage-family", name: "Marriage & Family" },
-  { id: "sc-faith", slug: "faith-growth", name: "Faith & Growth" },
-  { id: "sc-special", slug: "special-services", name: "Special Services" },
   { id: "sc-kinyarwanda", slug: "kinyarwanda", name: "Kinyarwanda" },
 ];
 const cat = (slug: string) => seedSermonCategories.find((c) => c.slug === slug) ?? null;
-const SRC = "New Life Rwanda YouTube";
 
-const sermon = (s: Omit<Sermon, "thumbnail" | "videoUrl" | "audioUrl" | "speaker" | "sourceNote" | "category"> & { yt: string; cat: string; speakerId?: string }): Sermon => ({
-  ...s, videoUrl: yt(s.yt), audioUrl: null, thumbnail: ytThumb(s.yt), category: cat(s.cat), sourceNote: SRC,
-  speaker: s.speakerId ? seedLeaders.find((l) => l.id === s.speakerId) ?? null : null,
-});
+export interface SeedSermonMeta { location: string; preachedInArizona: boolean; preacherVerified: boolean; locationVerified: boolean }
+export const seedSermonMeta: Record<string, SeedSermonMeta> = {};
 
+const sermon = (s: Omit<Sermon, "thumbnail" | "videoUrl" | "audioUrl" | "speaker" | "sourceNote" | "category"> & { yt: string; cat: string; speakerId?: string; location: string }): Sermon => {
+  seedSermonMeta[s.id] = { location: s.location, preachedInArizona: false, preacherVerified: true, locationVerified: true };
+  return {
+    id: s.id, slug: s.slug, title: s.title, speakerName: s.speakerName, description: s.description, scripture: s.scripture,
+    series: s.series, preachedOn: s.preachedOn, isFeatured: s.isFeatured,
+    videoUrl: yt(s.yt), audioUrl: null, thumbnail: ytThumb(s.yt), category: cat(s.cat), sourceNote: "YouTube",
+    speaker: s.speakerId ? seedLeaders.find((l) => l.id === s.speakerId) ?? null : null,
+  };
+};
+
+const CHARLES = { speakerName: "Pastor Charles Mugisha", speakerId: "ld-charles", location: "Recorded and published on YouTube (preached outside Arizona)" };
 export const seedSermons: Sermon[] = [
-  sermon({ id: "sm-25-years", slug: "25-years-of-transforming-lives", title: "25 Years of Transforming Lives: Thanksgiving Service", speakerName: "New Life Rwanda", description: "The thanksgiving service celebrating 25 years of Africa New Life Ministries.", scripture: null, series: "Africa New Life at 25", preachedOn: "2026-10-11", isFeatured: true, yt: "9-581YAL-Ys", cat: "special-services" }),
-  sermon({ id: "sm-dev-stages", slug: "the-development-stages-of-marriage", title: "The Development Stages of Marriage", speakerName: "Pastor Charles Mugisha", speakerId: "ld-charles", description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-10-04", isFeatured: true, yt: "tsNcq0xw4pU", cat: "marriage-family" }),
-  sermon({ id: "sm-healing-2", slug: "healing-the-heart-before-building-the-home-part-2", title: "Healing the Heart Before Building the Home, Part II", speakerName: "Pastor Charles Mugisha", speakerId: "ld-charles", description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-09-27", isFeatured: false, yt: "5mJK1C-Gn28", cat: "marriage-family" }),
-  sermon({ id: "sm-healing-1", slug: "healing-the-heart-before-building-the-home", title: "Healing the Heart Before Building the Home", speakerName: "Pastor Charles Mugisha", speakerId: "ld-charles", description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-09-20", isFeatured: false, yt: "dms4ZG8jnAI", cat: "marriage-family" }),
-  sermon({ id: "sm-design-2", slug: "marriage-by-gods-design-part-2", title: "Marriage by God's Design, Part II", speakerName: "Pastor Charles Mugisha", speakerId: "ld-charles", description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-08-30", isFeatured: false, yt: "oSKpkY-2V9Q", cat: "marriage-family" }),
-  sermon({ id: "sm-courage", slug: "the-courage-to-care", title: "The Courage To Care", speakerName: "Dr. Nathan Chiroma", description: null, scripture: null, series: null, preachedOn: "2026-09-13", isFeatured: true, yt: "8mEJiF-7SU8", cat: "faith-growth" }),
-  sermon({ id: "sm-stretch", slug: "trusting-god-for-the-stretch", title: "Trusting God For The Stretch", speakerName: "Rev. Fred Isaac Katagwa", description: null, scripture: null, series: null, preachedOn: "2026-10-25", isFeatured: false, yt: "zlOhdbyPVus", cat: "faith-growth" }),
-  sermon({ id: "sm-consecrate", slug: "consecrate-yourself-for-the-next-season", title: "Consecrate Yourself For The Next Season", speakerName: "Rev. Peter Kasirivu", description: null, scripture: null, series: null, preachedOn: "2026-10-18", isFeatured: false, yt: "PtOx86Aufbs", cat: "faith-growth" }),
-  sermon({ id: "sm-strength", slug: "finding-strength-in-god-for-the-stretch", title: "Finding Strength in God for the Stretch", speakerName: "Pastor Banda Chrispine", description: null, scripture: null, series: null, preachedOn: "2026-11-08", isFeatured: false, yt: "P1NMbBhuImU", cat: "faith-growth" }),
-  sermon({ id: "sm-lengthen", slug: "lengthen-and-strengthen", title: "Lengthen and Strengthen", speakerName: "Pastor Elisee Rugambarara", description: null, scripture: null, series: null, preachedOn: "2026-11-15", isFeatured: false, yt: "HNdzwkeUgXI", cat: "faith-growth" }),
-  sermon({ id: "sm-kwizera", slug: "kwizera-imana-ikakwagura", title: "Kwizera Imana Ikakwagura", speakerName: "Rev. Fred Isaac Katagwa", description: "Message in Kinyarwanda.", scripture: null, series: null, preachedOn: "2026-11-01", isFeatured: false, yt: "xr1zKmduajc", cat: "kinyarwanda" }),
-  sermon({ id: "sm-urushako", slug: "urushako-mu-mugambi-wimana-1", title: "Urushako Mu Mugambi W'Imana, Igice Cya Mbere", speakerName: "Pastor Charles Mugisha", speakerId: "ld-charles", description: "Message in Kinyarwanda.", scripture: null, series: null, preachedOn: "2026-08-30", isFeatured: false, yt: "1ZUXsY0iy60", cat: "kinyarwanda" }),
+  sermon({ id: "sm-dev-stages", slug: "the-development-stages-of-marriage", title: "The Development Stages of Marriage", ...CHARLES, description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-10-04", isFeatured: true, yt: "tsNcq0xw4pU", cat: "marriage-family" }),
+  sermon({ id: "sm-healing-2", slug: "healing-the-heart-before-building-the-home-part-2", title: "Healing the Heart Before Building the Home, Part II", ...CHARLES, description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-09-27", isFeatured: false, yt: "5mJK1C-Gn28", cat: "marriage-family" }),
+  sermon({ id: "sm-healing-1", slug: "healing-the-heart-before-building-the-home", title: "Healing the Heart Before Building the Home", ...CHARLES, description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-09-20", isFeatured: false, yt: "dms4ZG8jnAI", cat: "marriage-family" }),
+  sermon({ id: "sm-design-2", slug: "marriage-by-gods-design-part-2", title: "Marriage by God's Design, Part II", ...CHARLES, description: null, scripture: null, series: "Marriage by God's Design", preachedOn: "2026-08-30", isFeatured: false, yt: "oSKpkY-2V9Q", cat: "marriage-family" }),
+  sermon({ id: "sm-urushako", slug: "urushako-mu-mugambi-wimana-1", title: "Urushako Mu Mugambi W'Imana, Igice Cya Mbere", ...CHARLES, description: "Message in Kinyarwanda.", scripture: null, series: null, preachedOn: "2026-08-30", isFeatured: false, yt: "1ZUXsY0iy60", cat: "kinyarwanda" }),
 ];
 
-// ------------------------------------------------------------------ events
+// ------------------------------------------------------------------ events (from @newlifeglobalaz)
 export const seedEvents: ChurchEvent[] = [
   {
     id: "ev-anniversary", slug: "first-anniversary-2026", title: "1st Year Anniversary: For Thy Is The Glory",
@@ -187,7 +251,7 @@ export const seedEvents: ChurchEvent[] = [
     description: "Big day coming! Celebrate with us at New Life Global's 1st Year Anniversary, hosted by Pastors Charles & Florence Mugisha, with Pastor Alain Muhire and Pastor Enock Rwakatale.\n\nSaturday, December 12: doors open at 4:00 PM.\nSunday, December 13: doors open at 2:00 PM.\n\nCome and be a part of this special celebration, and bring a friend.",
     category: "Celebration", startsAt: `2026-12-12T16:00:00${AZ}`, endsAt: `2026-12-13T19:00:00${AZ}`,
     venue: "New Life Global", address: "800 W Galveston St, Chandler, AZ 85225", registrationUrl: null,
-    image: media("ig-anniversary"), isFeatured: true,
+    image: media("ig-anniversary"), isFeatured: true, ministryId: null,
   },
   {
     id: "ev-night-prayer-jul", slug: "night-of-prayer-july-2026", title: "Night of Prayer",
@@ -195,7 +259,7 @@ export const seedEvents: ChurchEvent[] = [
     description: "Come and start the new month with God at our Night of Prayer, with guest Pastor Edmond Kivuye.",
     category: "Prayer", startsAt: `2026-07-03T21:00:00${AZ}`, endsAt: `2026-07-04T00:00:00${AZ}`,
     venue: "New Life Global", address: "800 W Galveston St, Chandler, AZ 85225", registrationUrl: null,
-    image: media("ig-night-prayer"), isFeatured: false,
+    image: media("ig-night-prayer"), isFeatured: false, ministryId: "mn-prayer",
   },
   {
     id: "ev-refresh-women", slug: "refresh-women-2026", title: "Refresh Women 2026",
@@ -203,18 +267,17 @@ export const seedEvents: ChurchEvent[] = [
     description: "Refresh Women 2026 was an incredible, life changing experience. We laughed, worshipped, learned and left refreshed and encouraged. Pastor Grace's message taught us to ignite the fire and keep it burning, with worship from Alain Muhire, Lynca Muhire and Pastor Enock.",
     category: "Conference", startsAt: `2026-05-29T18:00:00${AZ}`, endsAt: null,
     venue: "New Life Global", address: "Chandler, AZ", registrationUrl: null,
-    image: media("ig-rw-01"), isFeatured: false,
+    image: media("ig-rw-01"), isFeatured: false, ministryId: "mn-women",
   },
 ];
 
-// ------------------------------------------------------------------ gallery
+// ------------------------------------------------------------------ gallery albums
 export const seedGalleryCategories: GalleryCategory[] = [
-  { id: "gc-worship", slug: "worship", name: "Worship" },
-  { id: "gc-services", slug: "services", name: "Church Services" },
-  { id: "gc-conferences", slug: "conferences", name: "Conferences" },
-  { id: "gc-community", slug: "community", name: "Community" },
-  { id: "gc-celebrations", slug: "celebrations", name: "Celebrations" },
-  { id: "gc-rwanda", slug: "rwanda-ministry", name: "Rwanda Ministry" },
+  { id: "gc-worship", slug: "worship", name: "Worship", description: null },
+  { id: "gc-services", slug: "services", name: "Church Services", description: null },
+  { id: "gc-conferences", slug: "conferences", name: "Conferences", description: "Refresh Women 2026 and other gatherings." },
+  { id: "gc-community", slug: "community", name: "Community", description: null },
+  { id: "gc-celebrations", slug: "celebrations", name: "Celebrations", description: null },
 ];
 
 export const seedGallery: GalleryItem[] = seedMedia
@@ -227,7 +290,7 @@ export const seedGallery: GalleryItem[] = seedMedia
 export const seedAnnouncements: Announcement[] = [
   {
     id: "an-anniversary", title: "Celebrate our 1st Anniversary, Dec 12 & 13",
-    body: "Join Pastors Charles & Florence Mugisha for worship and the Word.", linkUrl: "/events/first-anniversary-2026",
+    body: "Join us for worship and the Word.", linkUrl: "/events/first-anniversary-2026",
     linkLabel: "Details", isPinned: true,
   },
 ];
@@ -240,9 +303,9 @@ export const seedHomepage: HomepageSection[] = [
       primaryCta: { label: "Plan Your Visit", href: "/visit" },
       secondaryCta: { label: "Explore New Life", href: "#chapters" },
       slides: [
-        { index: "01", label: "Faith & Worship", caption: "Worship, prayer and the Word", headline: "A place of love.\nA family of faith.", body: "We are a healthy church that transforms lives and nations through the Gospel of Jesus Christ and acts of compassion. Come worship with us every Sunday at 3:00 PM.", mediaId: "ig-rw-04" },
+        { index: "01", label: "Faith & Worship", caption: "Worship, prayer and the Word", headline: "A place of love.\nA family of faith.", body: "A future of hope in Chandler, Arizona. Come worship with us every Sunday at 3:00 PM.", mediaId: "ig-rw-04" },
         { index: "02", label: "Community & Discipleship", caption: "Growing together as one family", headline: "Worship.\nGrow. Serve.", body: "From Sunday School to Refresh Women, we grow in Christ together and serve one another with joy.", mediaId: "ig-rw-05" },
-        { index: "03", label: "Global Mission", caption: "From Rwanda to the nations", headline: "One family.\nTwo continents.", body: "Rooted in New Life Bible Church Kigali, founded by Pastors Charles and Florence Mugisha, and carrying love and hope to families and communities.", mediaId: "yt-25-years" },
+        { index: "03", label: "Go & Make Disciples", caption: "Matthew 28:19", headline: "Go.\nMake disciples.", body: "Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost. Matthew 28:19", mediaId: "ig-rw-07" },
       ],
     },
   },
@@ -251,20 +314,20 @@ export const seedHomepage: HomepageSection[] = [
     data: {
       items: [
         { value: "3 PM", label: "Every Sunday in Chandler, AZ" },
-        { value: "2001", label: "Africa New Life founded in Rwanda" },
-        { value: "25", suffix: "yrs", label: "Of transforming lives" },
-        { value: "19,000", suffix: "+", label: "Students sponsored by Africa New Life" },
+        { value: "4", label: "Weekly worship and prayer gatherings" },
+        { value: "5 AM", label: "Morning Glory prayer" },
+        { value: "1", suffix: "st", label: "Anniversary, December 2026" },
       ],
     },
   },
   {
-    key: "chapters", kicker: "Our Story", title: "Three chapters. One story of new life.", sortOrder: 3, isVisible: true,
-    body: "New Life Global is a young church with deep roots. Here is who we are, in three chapters.",
+    key: "chapters", kicker: "Who We Are", title: "Three chapters. One story of new life.", sortOrder: 3, isVisible: true,
+    body: "New Life Global is a young church in Chandler, Arizona. Here is who we are, in three chapters.",
     data: {
       chapters: [
-        { index: "01", title: "Faith & Worship", lead: "We worship God in a lively and heartfelt atmosphere.", body: "Every Sunday we gather to worship, to pray, and to hear the Bible taught in a way you can live. Our week is wrapped in prayer, from Morning Glory at 5 AM to Night Prayer on the first Friday of each month.", points: ["Sunday Service · 3:00 PM", "Night Prayer · first Friday", "Night of Worship · Fridays"], mediaId: "ig-rw-03", videoId: "8mEJiF-7SU8", cta: { label: "Watch a message", href: "/messages" } },
-        { index: "02", title: "Community & Discipleship", lead: "Worship. Grow. Serve.", body: "We are a family of faith. Children grow in our Sunday School, women are refreshed and equipped, and everyone has a place to serve the Lord and His people.", points: ["Sunday School", "Refresh Women", "Serve Team"], mediaId: "ig-church-family", cta: { label: "Find your ministry", href: "/ministries" } },
-        { index: "03", title: "Global Mission", lead: "Go and make disciples of all nations.", body: "We share the vision of New Life Bible Church in Kigali, founded by Pastors Charles and Florence Mugisha: a healthy church that transforms lives and nations through the Gospel and acts of compassion. What began in Rwanda in 2001 has grown into churches, schools, a theological college and a hospital.", points: ["Founded 2001 in Rwanda", "New Life Bible Church, Kigali", "Churches across Rwanda"], mediaId: "yt-25-years", cta: { label: "Our Rwanda connection", href: "/about#rwanda" } },
+        { index: "01", title: "Faith & Worship", lead: "We worship God in a lively and heartfelt atmosphere.", body: "Every Sunday we gather to worship, to pray and to hear the Word. Our week is wrapped in prayer, from Morning Glory at 5 AM to Night Prayer on the first Friday of each month.", points: ["Sunday Service · 3:00 PM", "Night Prayer · first Friday", "Night of Worship · Fridays"], mediaId: "ig-rw-03", videoId: "tsNcq0xw4pU", cta: { label: "Watch a message", href: "/messages" } },
+        { index: "02", title: "Community & Discipleship", lead: "Worship. Grow. Serve.", body: "We are a family of faith. Children grow in our Sunday School, women are refreshed and encouraged, and everyone has a place to serve the Lord and His people.", points: ["Sunday School", "Refresh Women", "Serve Team"], mediaId: "ig-church-family", cta: { label: "Find your ministry", href: "/ministries" } },
+        { index: "03", title: "Go & Make Disciples", lead: "Go ye therefore, and teach all nations.", body: "Matthew 28:19 is the verse at the center of our church. We pray, worship and serve with that call before us.", points: ["Matthew 28:19", "Night Prayer", "Morning Glory"], mediaId: "ig-serving", cta: { label: "Plan your visit", href: "/visit" } },
       ],
     },
   },
@@ -276,9 +339,9 @@ export const seedHomepage: HomepageSection[] = [
     key: "discover", kicker: "Discover New Life", title: "Find your way in.", body: "Seven pathways into the life of our church.", sortOrder: 5, isVisible: true,
     data: {
       items: [
-        { title: "About Us", text: "Our story, beliefs and the Rwanda connection.", href: "/about" },
+        { title: "About Us", text: "Who we are, what we believe and who leads us.", href: "/about" },
         { title: "Ministries", text: "Worship, prayer, women, children and serving.", href: "/ministries" },
-        { title: "Messages", text: "Watch sermons from the New Life family.", href: "/messages" },
+        { title: "Messages", text: "Watch sermons from Pastor Charles.", href: "/messages" },
         { title: "Events", text: "Gatherings, conferences and celebrations.", href: "/events" },
         { title: "Leadership", text: "Meet our pastors.", href: "/about#leadership" },
         { title: "Prayer", text: "Share a request in confidence.", href: "/prayer" },
@@ -287,26 +350,11 @@ export const seedHomepage: HomepageSection[] = [
     },
   },
   {
-    key: "pathways", kicker: "Messages & Gatherings", title: "Hear the Word. Gather with us.", body: "Recent messages from the New Life family and what's coming up in Chandler.", sortOrder: 6, isVisible: true,
-    data: { messageMediaId: "yt-courage", eventMediaId: "ig-anniversary" },
+    key: "pathways", kicker: "Messages & Gatherings", title: "Hear the Word. Gather with us.", body: "A recent message and what's coming up in Chandler.", sortOrder: 6, isVisible: true,
+    data: { eventMediaId: "ig-anniversary" },
   },
   {
     key: "ministries", kicker: "Ministries", title: "A place for everyone to belong.", body: null, sortOrder: 7, isVisible: true, data: {},
-  },
-  {
-    key: "global", kicker: "One Family, Two Continents", title: "Chandler and Kigali, joined in one mission.", sortOrder: 8, isVisible: true,
-    body: "New Life began in Rwanda in 2001 with Charles and Florence Mugisha, both raised as Rwandan refugees in Uganda. 25 years later, New Life Bible Churches, schools, the Africa College of Theology and Dream Medical Center serve communities across Rwanda. In Chandler, we carry that same Gospel and compassion.",
-    data: {
-      facts: [
-        { label: "2001", text: "Africa New Life begins in Kayonza, Rwanda" },
-        { label: "2003", text: "New Life Bible Church, Kigali is planted" },
-        { label: "2013", text: "Africa College of Theology opens" },
-        { label: "2018", text: "Dream Medical Center opens" },
-        { label: "2025", text: "New Life Global begins in Chandler, Arizona" },
-      ],
-      mediaId: "yt-25-years", videoId: "9-581YAL-Ys",
-      link: { label: "Visit Africa New Life", href: "https://www.africanewlife.org/" },
-    },
   },
   {
     key: "testimonies", kicker: "Stories", title: "What God is doing among us.", body: null, sortOrder: 9, isVisible: false,
@@ -323,5 +371,5 @@ export const seed = {
   settings: seedSettings, media: seedMedia, leaders: seedLeaders, ministries: seedMinistries,
   sermonCategories: seedSermonCategories, sermons: seedSermons, events: seedEvents,
   galleryCategories: seedGalleryCategories, gallery: seedGallery, announcements: seedAnnouncements,
-  homepage: seedHomepage,
+  homepage: seedHomepage, churchContent: seedChurchContent,
 };

@@ -26,3 +26,15 @@ Answers from the project owner. These are the authority for website content (sou
 | Pastor Enock (spelled **Enock Rwakatale** on the anniversary poster; "Enoch Lwakatare" in an Instagram caption) | Worship Pastor | Leads worship at New Life Global events (Refresh Women 2026; 1st Anniversary) | R12, R17 |
 
 Bios for Augustine and Enock will ship as short role-only text, marked in the admin as "needs bio". Owner action: send bios and portraits for these two.
+
+## 2026-11-20: organizational identity correction (supersedes OD-1)
+
+| # | Topic | Decision |
+|---|---|---|
+| OD-10 | Identity | Following feedback from Pastor Charles: New Life Global is a **completely independent organization in the United States**. It must not be presented as a branch of New Life Bible Church Kigali, a subsidiary of Africa New Life Ministries, or an extension of a Rwanda-based organization. No Rwanda comparisons, no imported Rwanda history, ministries or leadership stories, no "25 years" narrative. **OD-1 is withdrawn.** |
+| OD-11 | Sermons | Pastor Charles' sermons may be published wherever he preached. Others only when preached at the Arizona church. Preacher and location must be verified. Unverified sermons stay unpublished. This replaces the earlier use of New Life Rwanda sermons by other preachers, and of the "Courage To Care" hover clip (OD-8). |
+| OD-12 | Giving | Provide a Give page and Give buttons. No payment processing until the church approves a provider and supplies credentials. Do not copy Bethel's giving experience. |
+| OD-13 | Design | ai.gov.rw remains the primary reference; bethelweb.org is the secondary reference for church site organization (not giving). |
+| OD-14 | CMS | Administrators manage almost all content. Mission, vision, beliefs and the church story go through draft → approval → publish. |
+
+Leader bios from Africa New Life sources (Pastor Charles, Pastor Florence) were removed under OD-10 and await bios from the church.

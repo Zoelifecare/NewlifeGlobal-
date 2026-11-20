@@ -9,7 +9,7 @@ const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
-  const description = `${s.name}, ${s.address.city}, Arizona. ${s.affiliation}. Join us Sundays at 3:00 PM.`;
+  const description = `${s.name}, ${s.address.city}, Arizona. ${s.statement}. Join us Sundays at 3:00 PM.`;
   return {
     metadataBase: new URL(siteUrl()),
     title: { default: `${s.name} | ${s.address.city}, AZ`, template: `%s · ${s.name}` },

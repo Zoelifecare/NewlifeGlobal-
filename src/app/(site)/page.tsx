@@ -1,7 +1,9 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Calendar, MapPin } from "lucide-react";
-import { getEvents, getHomepage, getMediaByIds, getMinistries, getSermons, getSettings } from "@/lib/content";
+import { ArrowRight, Calendar, MapPin } from "lucide-react";
+import { getAnnouncements, getEvents, getHomepage, getMediaByIds, getMinistries, getSermons, getSettings } from "@/lib/content";
+import { AnnouncementBar } from "@/components/site/announcement-bar";
 import type { HomepageSection, Media } from "@/lib/content/types";
 import { HeroSlider, type HeroSlideView } from "@/components/site/hero-slider";
 import { SectionHead } from "@/components/site/section-head";
@@ -17,8 +19,8 @@ type D = Record<string, any>;
 const NUMBERED = ["chapters", "discover", "pathways", "global"];
 
 export default async function HomePage() {
-  const [sections, settings, ministries, sermons, upcoming] = await Promise.all([
-    getHomepage(), getSettings(), getMinistries(), getSermons(), getEvents("upcoming"),
+  const [sections, settings, ministries, sermons, upcoming, announcements] = await Promise.all([
+    getHomepage(), getSettings(), getMinistries(), getSermons(), getEvents("upcoming"), getAnnouncements(),
   ]);
 
   const mediaIds = sections.flatMap((s) => collectMediaIds(s.data));
@@ -191,7 +193,7 @@ export default async function HomePage() {
                 <Link href="/ministries" className="nl-textlink">All ministries<ArrowRight className="h-4 w-4" aria-hidden /></Link>
               </div>
               <ol className="border-t border-line lg:col-span-8">
-                {ministries.map((m, i) => (
+                {(ministries.some((x) => x.isFeatured) ? ministries.filter((x) => x.isFeatured) : ministries).map((m, i) => (
                   <li key={m.id} className="nl-hoverbox nl-reveal border-b border-line" style={{ ["--d" as string]: `${i * 0.05}s` }}>
                     <Link href={`/ministries/${m.slug}`} className="group grid grid-cols-[3rem_1fr_2rem] items-center gap-4 py-6 transition-[padding] duration-500 ease-soft hover:pl-4 sm:grid-cols-[5rem_1fr_auto_2rem] sm:gap-8">
                       <span className="nl-index nl-num transition-colors group-hover:text-blue">{String(i + 1).padStart(2, "0")}</span>
@@ -208,42 +210,6 @@ export default async function HomePage() {
             </div>
           </section>
         );
-
-      case "global": {
-        const m = img(s.data.mediaId);
-        const vid = s.data.videoId as string | undefined;
-        return (
-          <section key={s.key} id="global" className="nl-section nl-section--ink" aria-labelledby="global-title">
-            <div className="nl-container">
-              <SectionHead id="global-title" kicker={s.kicker} title={s.title} tone="light" {...idx(s.key)} />
-              <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-                <div className="lg:col-span-7">
-                  {m && vid ? (
-                    <HoverVideo videoId={vid} image={{ url: m.url, alt: m.alt }} label="25 Years of Transforming Lives" className="nl-clip aspect-video" />
-                  ) : m ? (
-                    <div className="nl-zoom relative aspect-video"><Image src={m.url} alt={m.alt} fill className="object-cover" sizes="(min-width:1024px) 58vw, 100vw" /></div>
-                  ) : null}
-                </div>
-                <div className="nl-reveal grid content-start gap-8 lg:col-span-5">
-                  <p className="text-[1.05rem] leading-relaxed text-white/75">{s.body}</p>
-                  <ol className="border-t border-white/15">
-                    {(s.data.facts ?? []).map((f: D) => (
-                      <li key={f.label} className="nl-hoverbox nl-hoverbox--dark grid cursor-default grid-cols-[4.5rem_1fr] gap-4 border-b border-white/15 px-2 py-4">
-                        <span className="nl-hb-lift nl-num font-semibold text-blue">{f.label}</span>
-                        <span className="text-sm text-white/80">{f.text}</span>
-                      </li>
-                    ))}
-                  </ol>
-                  <div className="flex flex-wrap items-center gap-6">
-                    <Link href="/about#rwanda" className="nl-btn nl-btn--light"><span>Our Rwanda connection</span><ArrowRight className="h-4 w-4" aria-hidden /></Link>
-                    {s.data.link && <a href={s.data.link.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue hover:text-white">{s.data.link.label}<ArrowUpRight className="h-4 w-4" aria-hidden /></a>}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        );
-      }
 
       case "testimonies":
         if (!s.data.items?.length) return null;
@@ -287,7 +253,17 @@ export default async function HomePage() {
     }
   };
 
-  return <>{sections.map((s) => render(s as HomepageSection<D>))}</>;
+  const pinned = announcements.filter((a) => a.isPinned);
+  return (
+    <>
+      {sections.map((s, i) => (
+        <Fragment key={s.key}>
+          {render(s as HomepageSection<D>)}
+          {i === 0 && pinned.length > 0 && <AnnouncementBar items={pinned} />}
+        </Fragment>
+      ))}
+    </>
+  );
 }
 
 function collectMediaIds(data: unknown): string[] {

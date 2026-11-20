@@ -11,11 +11,14 @@ export function SiteFooter({ settings, ministries }: { settings: SiteSettings; m
     <footer className="bg-ink text-white/70">
       <div className="nl-container grid gap-12 py-16 md:py-20 xl:grid-cols-[minmax(0,4fr)_repeat(4,minmax(0,2fr))] xl:gap-14">
         <div className="grid content-start gap-6 md:col-span-2 xl:col-span-1">
-          <Logo tone="light" />
+          <Logo tone="light" src={settings.logo.color} alt={settings.name} />
           <p className="max-w-[16ch] text-[clamp(1.6rem,2.4vw,2.2rem)] font-medium leading-[1.05] tracking-tight text-white">
             {settings.pillars.join(". ")}.
           </p>
-          <p className="max-w-sm text-sm leading-relaxed text-white/60">{settings.affiliation}.</p>
+          <p className="max-w-sm text-sm leading-relaxed text-white/60">{settings.statement}.</p>
+          {settings.giving.enabled && settings.pages.give !== false && (
+            <Link href="/give" className="nl-btn nl-btn--ghost w-fit"><span>Give</span></Link>
+          )}
         </div>
 
         <FooterCol title="Visit">
@@ -37,7 +40,7 @@ export function SiteFooter({ settings, ministries }: { settings: SiteSettings; m
         </FooterCol>
 
         <FooterCol title="Explore">
-          {[["About Us", "/about"], ["Leadership", "/about#leadership"], ["Messages", "/messages"], ["Events", "/events"], ["Gallery", "/gallery"], ["Prayer Requests", "/prayer"], ["Contact", "/contact"]].map(([l, h]) => (
+          {([["About Us", "/about", "about"], ["Leadership", "/about#leadership", "about"], ["Messages", "/messages", "messages"], ["Events", "/events", "events"], ["Gallery", "/gallery", "gallery"], ["Prayer Requests", "/prayer", "prayer"], ["Contact", "/contact", "contact"], ["Give", "/give", "give"]] as const).filter(([, , k]) => settings.pages[k] !== false).map(([l, h]) => (
             <li key={h}><Link className="footer-link" href={h}>{l}</Link></li>
           ))}
         </FooterCol>
@@ -53,7 +56,7 @@ export function SiteFooter({ settings, ministries }: { settings: SiteSettings; m
       </div>
       <div className="border-t border-white/10">
         <div className="nl-container flex flex-wrap items-center justify-between gap-4 py-6 text-xs text-white/50">
-          <p>© {year} {settings.name}. Part of the Africa New Life family.</p>
+          <p>© {year} {settings.name}, {settings.address.city}, Arizona.</p>
           <ul className="flex flex-wrap gap-6">
             <li><Link className="hover:text-blue" href="/privacy">Privacy</Link></li>
             <li><Link className="hover:text-blue" href="/admin">Staff login</Link></li>

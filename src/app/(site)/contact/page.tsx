@@ -1,6 +1,7 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
-import { getSettings } from "@/lib/content";
+import { getSettings, isPageVisible } from "@/lib/content";
 import { ContactForm } from "@/components/site/forms/public-forms";
 import { MapEmbed } from "@/components/site/map-embed";
 
@@ -16,6 +17,7 @@ const TOPICS: Record<string, string> = {
 };
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ topic?: string }> }) {
+  if (!(await isPageVisible("contact"))) notFound();
   const [s, sp] = await Promise.all([getSettings(), searchParams]);
   const a = s.address;
   return (

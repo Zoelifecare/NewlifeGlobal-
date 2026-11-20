@@ -1,5 +1,6 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getSettings } from "@/lib/content";
+import { getSettings, isPageVisible } from "@/lib/content";
 import { PrayerForm } from "@/components/site/forms/public-forms";
 
 export const revalidate = 300;
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PrayerPage() {
+  if (!(await isPageVisible("prayer"))) notFound();
   const s = await getSettings();
   return (
     <section className="bg-paper pb-[clamp(4rem,10vh,7rem)] pt-[calc(var(--nl-header-h)+clamp(2.5rem,7vh,5rem))]">

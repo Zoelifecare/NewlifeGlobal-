@@ -1,16 +1,18 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowUpRight } from "lucide-react";
-import { getGallery, getGalleryCategories, getSettings } from "@/lib/content";
+import { getGallery, getGalleryCategories, getSettings, isPageVisible } from "@/lib/content";
 import { GalleryGrid } from "@/components/site/gallery-grid";
 
 export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Gallery",
-  description: "Photos from worship, conferences and community life at New Life Global, and our New Life family in Rwanda.",
+  description: "Photos from worship, conferences and community life at New Life Global in Chandler, Arizona.",
   alternates: { canonical: "/gallery" },
 };
 
 export default async function GalleryPage() {
+  if (!(await isPageVisible("gallery"))) notFound();
   const [items, categories, settings] = await Promise.all([getGallery(), getGalleryCategories(), getSettings()]);
   const ig = settings.social.find((s) => /instagram/i.test(s.url));
   return (

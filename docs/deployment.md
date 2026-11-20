@@ -6,7 +6,9 @@
    1. `supabase/migrations/20261119000100_schema.sql`
    2. `supabase/migrations/20261119000200_security.sql`
    3. `supabase/migrations/20261119000300_storage.sql`
-   4. `supabase/seed.sql` (verified starter content)
+   4. `supabase/migrations/20261120000100_cms.sql`
+   5. `supabase/seed.sql` (verified starter content) for a NEW database, **or** `supabase/identity-correction.sql` if the database was already seeded before 2026-11-20
+   6. `notify pgrst, 'reload schema';`
    *(Or with the Supabase CLI: `supabase link` then `supabase db push`, then run the seed.)*
 3. **Authentication → Providers:** keep Email enabled. **Disable “Allow new users to sign up”**: staff are invited only.
 4. **Authentication → URL configuration:** Site URL = `https://YOUR-DOMAIN`; add `https://YOUR-DOMAIN/admin/auth/callback` to Redirect URLs (plus the Vercel preview domain if you want to test previews).

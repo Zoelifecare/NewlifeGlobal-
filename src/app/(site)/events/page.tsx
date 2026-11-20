@@ -1,8 +1,9 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getEvents } from "@/lib/content";
+import { getEvents, isPageVisible } from "@/lib/content";
 import type { ChurchEvent } from "@/lib/content/types";
 import { PageHero } from "@/components/site/page-hero";
 import { SectionHead } from "@/components/site/section-head";
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
+  if (!(await isPageVisible("events"))) notFound();
   const [upcoming, past] = await Promise.all([getEvents("upcoming"), getEvents("past")]);
   const featured = upcoming.find((e) => e.isFeatured) ?? upcoming[0];
 

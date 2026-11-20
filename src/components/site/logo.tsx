@@ -2,12 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 /**
- * Official New Life mark (newlifekigali.org, OD-2) + "GLOBAL" lockup as used on New Life Global flyers.
- * `tone="light"` renders the mark in white for dark backgrounds.
+ * Church logo (editable in Church Identity & Settings › Brand) with the "GLOBAL" lockup used on the
+ * church's own flyers. `tone="light"` renders the mark in white for dark backgrounds.
  */
-export function Logo({ tone = "dark", src = "/media/brand/nlc-logo-color.png", className = "" }: { tone?: "dark" | "light"; src?: string; className?: string }) {
+export function Logo({ tone = "dark", src = "/media/brand/nlc-logo-color.png", alt = "New Life Global", className = "" }: { tone?: "dark" | "light"; src?: string; alt?: string; className?: string }) {
   return (
-    <Link href="/" className={`group inline-flex items-center gap-3 ${className}`} aria-label="New Life Global home">
+    <Link href="/" className={`group inline-flex items-center gap-3 ${className}`} aria-label={`${alt} home`}>
       <Image
         src={src}
         alt=""

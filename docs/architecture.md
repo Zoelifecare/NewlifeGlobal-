@@ -117,3 +117,13 @@ Semantic landmarks, a skip link, visible focus rings, a focus-trapped drawer and
 | `RATE_LIMIT_SALT` | Server only; used to hash IPs |
 
 **Local development without Supabase credentials:** the content layer falls back to the verified seed content (`src/lib/content/seed.ts`, mirroring `supabase/seed.sql`) so the public site can be previewed. In that mode forms and admin show a clear "Database not connected" state and **do not pretend to save**.
+
+## 12. CMS round 2 (2026-11-20)
+
+- **Church identity content** lives in `church_content` (draft and published JSON per section). The public site reads only the `published_church_content` view; drafts, review notes and approval data are never exposed. Publishing goes through security-definer functions (`save_church_content_draft`, `submit_church_content`, `publish_church_content`, `reject_church_content`, `unpublish_church_content`, `restore_content_version`). A trigger blocks editors from publishing approval-required sections even with a direct UPDATE.
+- **Versioning:** `content_versions` keeps every saved, submitted, published, sent-back and restored version of identity content, plus the previous value of every site setting. Restore is one action.
+- **Audit:** `audit_logs.old_values`, `new_values` and `outcome` record what changed from what to what, except on private tables (prayer, messages, subscribers, profiles), where only column names are kept.
+- **Sermon rules** are a database trigger (`enforce_sermon_policy`), so no client, script or role can publish a sermon that breaks them.
+- **Settings-driven UI:** navigation (with dropdown groups), page visibility, giving methods, visit FAQ and logo are settings keys, so the header, footer and pages need no code changes for routine updates.
+- **Resilience:** content reads fall back to the verified seed content (60-second circuit breaker) when the database is unreachable or not migrated, so a database problem cannot break a deploy.
+- **404s:** the site route group has no streaming `loading.tsx`, so unknown or removed items return a real 404 status.

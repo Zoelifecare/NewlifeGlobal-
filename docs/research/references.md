@@ -120,3 +120,13 @@ To be filled in during Phases 2–9: Next.js App Router docs, Supabase Auth/RLS/
 | T4 | PGlite | https://pglite.dev/ | Embedded Postgres for RLS tests | Technical |
 
 **Facts introduced on the site and their sources:** Pastor Fred Katagwa preaching at New Life Global (photo caption, post Dc7f_W0u-5_); Refresh Women 2026 dated **29 May 2026**, inferred from the "one day left" post on 28 May (R17) and **editable in admin**; "New Life Global begins in Chandler, Arizona, 2025", inferred from the 1st anniversary in Dec 2026 (R12), and to be confirmed by the owner.
+
+### 2026-11-20: round 2
+| # | Resource | URL | Use | Official? |
+|---|---|---|---|---|
+| D6 | **Bethel Church (secondary design reference)** | https://bethelweb.org/ | Navigation grouping (About ▸ Story / Beliefs / Mission & Vision / Leadership; Media; Connect), featured-leader-then-grid leadership layout, Plan a Visit structure (with an FAQ added to fill its logistics gap). **Not** used for giving | N |
+| D6b | Bethel leadership | https://bethelweb.org/leadership | Featured senior pastor block followed by grouped photo cards | N |
+| D6c | Bethel next steps / visit | https://bethelweb.org/connect | Visit page order; gaps noted (no FAQ, no arrival logistics) | N |
+| D1 | ai.gov.rw (revisited from round 1 notes) | https://ai.gov.rw/ | Numbered dropdown panel ("Opportunity Portfolio") now used as the main navigation pattern | N |
+
+**Identity correction:** Rwanda and Africa New Life sources (R1 to R9, R24 to R27, R40) are kept here as research history only. Under OD-10 none of their content is used on the website.

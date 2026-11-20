@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BookOpen, CalendarDays, ExternalLink, FolderTree, HandHeart, Home, Image as ImageIcon, LayoutDashboard, LayoutTemplate,
-  LogOut, Mail, Megaphone, Menu, ScrollText, Settings, Shield, Users, UsersRound, Video, X,
+  BookOpen, CalendarDays, ExternalLink, FolderTree, HandHeart, Home, Landmark, Image as ImageIcon, LayoutDashboard, LayoutTemplate,
+  LogOut, Mail, Megaphone, Menu, ScrollText, Shield, Users, UsersRound, Video, X,
 } from "lucide-react";
 
 interface Props {
@@ -23,10 +23,11 @@ export function AdminNav({ isAdmin, canEditContent, canReadPrayer, user, signOut
     {
       title: "Content",
       items: [
+        { href: "/admin/identity", label: "Church Identity", icon: Landmark, show: canEditContent },
         { href: "/admin/homepage", label: "Homepage", icon: LayoutTemplate, show: canEditContent },
         { href: "/admin/ministries", label: "Ministries", icon: HandHeart, show: true },
         { href: "/admin/sermons", label: "Sermons", icon: Video, show: canEditContent },
-        { href: "/admin/events", label: "Events", icon: CalendarDays, show: canEditContent },
+        { href: "/admin/events", label: "Events", icon: CalendarDays, show: true },
         { href: "/admin/announcements", label: "Announcements", icon: Megaphone, show: canEditContent },
         { href: "/admin/gallery", label: "Gallery", icon: ImageIcon, show: true },
         { href: "/admin/leadership", label: "Leadership", icon: UsersRound, show: canEditContent },
@@ -44,9 +45,8 @@ export function AdminNav({ isAdmin, canEditContent, canReadPrayer, user, signOut
     {
       title: "Settings",
       items: [
-        { href: "/admin/settings", label: "Site settings", icon: Settings, show: canEditContent },
         { href: "/admin/sermon-categories", label: "Sermon categories", icon: FolderTree, show: canEditContent },
-        { href: "/admin/gallery-categories", label: "Gallery categories", icon: FolderTree, show: canEditContent },
+        { href: "/admin/gallery-categories", label: "Gallery albums", icon: FolderTree, show: canEditContent },
         { href: "/admin/users", label: "Users & roles", icon: Shield, show: isAdmin },
         { href: "/admin/audit", label: "Audit log", icon: ScrollText, show: isAdmin },
       ],

@@ -20,7 +20,7 @@ export default async function EditResource({ params, searchParams }: {
 
   const managerOnly = !staff.canEditContent;
   if (managerOnly && res.scope !== "ministry") return <EmptyState title="Not available" text="Your role doesn't include this section." />;
-  if (isNew && managerOnly && res.key !== "gallery") return <EmptyState title="Not available" text="Only content editors can create new items here." />;
+  if (isNew && managerOnly && res.key !== "gallery" && res.key !== "events") return <EmptyState title="Not available" text="Only content editors can create new items here." />;
 
   let row: Record<string, unknown> = {};
   if (!isNew) {
@@ -32,12 +32,13 @@ export default async function EditResource({ params, searchParams }: {
       const mid = res.key === "ministries" ? row.id : row.ministry_id;
       if (!staff.ministryIds.includes(String(mid))) return <EmptyState title="Read only" text="You can edit only the ministries assigned to you." />;
     }
-  } else if (res.publishable) {
-    row = { status: "draft" };
+  } else {
+    if (res.publishable) row.status = "draft";
+    if (res.key === "gallery-categories") row.is_visible = true;
   }
 
   const [options, media] = await Promise.all([loadRelationOptions(res), loadMediaLibrary()]);
-  if (isNew && managerOnly && res.key === "gallery") {
+  if (managerOnly && (res.key === "gallery" || res.key === "events")) {
     options.ministry_id = (options.ministry_id ?? []).filter((o) => staff.ministryIds.includes(o.value));
   }
   const title = isNew ? `New ${res.singular.toLowerCase()}` : String(row[res.titleColumn] ?? res.singular);

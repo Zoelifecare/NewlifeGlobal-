@@ -1,7 +1,8 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
-import { getSermonCategories, getSermons, youTubeId } from "@/lib/content";
+import { getSermonCategories, getSermons, youTubeId, isPageVisible } from "@/lib/content";
 import { SermonCard } from "@/components/site/sermon-card";
 import { VideoEmbed } from "@/components/site/video-embed";
 import { formatSermonDate } from "@/lib/format";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 type SP = Promise<{ q?: string; category?: string; speaker?: string; series?: string }>;
 
 export default async function MessagesPage({ searchParams }: { searchParams: SP }) {
+  if (!(await isPageVisible("messages"))) notFound();
   const sp = await searchParams;
   const q = (sp.q ?? "").slice(0, 100);
   const filtered = Boolean(q || sp.category || sp.speaker || sp.series);

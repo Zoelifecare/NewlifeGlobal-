@@ -22,6 +22,5 @@ export function churchJsonLd(s: SiteSettings) {
     ...(s.contact.phone ? { telephone: s.contact.phone } : {}),
     event: undefined,
     openingHoursSpecification: [{ "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: "15:00", closes: "17:00" }],
-    parentOrganization: { "@type": "Organization", name: "Africa New Life Ministries", url: "https://www.africanewlife.org/" },
   };
 }

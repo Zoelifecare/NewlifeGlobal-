@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { getMinistries, getMinistry } from "@/lib/content";
+import { getMinistries, getMinistry, isPageVisible } from "@/lib/content";
 import { PageHero } from "@/components/site/page-hero";
 import { TocBlock, TocLayout } from "@/components/site/sticky-toc";
 import { LeaderCard } from "@/components/site/leader-card";
@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function MinistryPage({ params }: { params: Promise<{ slug: string }> }) {
+  if (!(await isPageVisible("ministries"))) notFound();
   const m = await getMinistry((await params).slug);
   if (!m) notFound();
   const all = await getMinistries();

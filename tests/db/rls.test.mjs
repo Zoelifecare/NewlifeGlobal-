@@ -21,25 +21,26 @@ before(async () => {
 test("seed loaded: settings, homepage, ministries, sermons, events, gallery", async () => {
   const c = async (t) => (await db.query(`select count(*)::int n from public.${t}`)).rows[0].n;
   assert.ok(await c("site_settings") >= 10);
-  assert.equal(await c("homepage_sections"), 10);
+  assert.equal(await c("homepage_sections"), 9);
   assert.equal(await c("ministries"), 5);
-  assert.ok(await c("sermons") >= 10);
+  assert.equal(await c("sermons"), 5);
+  assert.equal(await c("church_content"), 10);
   assert.equal(await c("events"), 3);
   assert.ok(await c("gallery_items") > 10);
   assert.equal(await c("leadership"), 4);
 });
 
 test("anon reads published content but never drafts or scheduled items", async () => {
-  await db.query("update public.sermons set status='draft' where slug='the-courage-to-care'");
-  await db.query("update public.sermons set status='published', published_at = now() + interval '7 days' where slug='lengthen-and-strengthen'");
+  await db.query("update public.sermons set status='draft' where slug='healing-the-heart-before-building-the-home'");
+  await db.query("update public.sermons set status='published', published_at = now() + interval '7 days' where slug='marriage-by-gods-design-part-2'");
   const rows = await as(db, "anon", (tx) => tx.query("select slug from public.sermons"));
   const slugs = rows.rows.map((r) => r.slug);
   assert.ok(slugs.includes("the-development-stages-of-marriage"));
-  assert.ok(!slugs.includes("the-courage-to-care"), "draft must be hidden");
-  assert.ok(!slugs.includes("lengthen-and-strengthen"), "scheduled must be hidden until its time");
+  assert.ok(!slugs.includes("healing-the-heart-before-building-the-home"), "draft must be hidden");
+  assert.ok(!slugs.includes("marriage-by-gods-design-part-2"), "scheduled must be hidden until its time");
   const staffView = await as(db, editor, (tx) => tx.query("select slug from public.sermons"));
-  assert.ok(staffView.rows.some((r) => r.slug === "the-courage-to-care"), "staff can preview drafts");
-  await db.query("update public.sermons set status='published', published_at = now() - interval '1 day' where slug in ('the-courage-to-care','lengthen-and-strengthen')");
+  assert.ok(staffView.rows.some((r) => r.slug === "healing-the-heart-before-building-the-home"), "staff can preview drafts");
+  await db.query("update public.sermons set status='published', published_at = now() - interval '1 day' where slug in ('healing-the-heart-before-building-the-home','marriage-by-gods-design-part-2')");
 });
 
 test("hidden homepage sections are not public", async () => {
