@@ -27,7 +27,7 @@ export default async function PrayerPage() {
           <div className="border-t border-line pt-6 text-sm">
             <p className="font-semibold text-ink">Pray with us in person</p>
             <ul className="mt-2 grid gap-1.5 text-body">
-              {s.services.filter((x) => /prayer|glory/i.test(x.name)).map((x) => <li key={x.name} className="nl-hoverbox cursor-default border-b border-line px-2 py-2"><span className="nl-hb-lift inline-block font-medium text-ink">{x.name}</span>: {x.day}, {x.time}</li>)}
+              {s.services.filter((x) => /prayer|glory/i.test(x.name)).map((x) => <li key={x.name} className="nl-hoverbox cursor-default border-b border-line px-2 py-2"><span className="nl-hb-lift inline-block font-medium text-ink">{x.name}</span>: {x.day}, {x.time}{x.joinUrl && <> · <a href={x.joinUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-deep underline hover:text-blue">Join on Zoom</a></>}</li>)}
             </ul>
           </div>
         </div>

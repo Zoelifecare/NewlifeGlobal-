@@ -50,6 +50,7 @@ export default async function VisitPage() {
                 <div>
                   <p className="nl-hb-lift m-0 text-lg font-medium text-ink">{x.name}</p>
                   <p className="m-0 text-sm text-muted">{x.location}{x.note ? ` · ${x.note}` : ""}</p>
+                  {x.joinUrl && <a href={x.joinUrl} target="_blank" rel="noopener noreferrer" className="nl-btn mt-3 w-fit !py-2 text-xs"><span>Join on Zoom</span></a>}
                 </div>
                 <p className="m-0 text-ink sm:text-right"><span className="font-semibold">{x.day}</span><br className="hidden sm:block" /> <span className="text-body">{x.time}</span></p>
               </li>

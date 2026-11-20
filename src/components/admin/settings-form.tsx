@@ -65,9 +65,9 @@ export function SettingsForm({ s, logos }: { s: SiteSettings; logos: { url: stri
       <Section title="Service times" wide>
         <div className="grid gap-3 sm:col-span-2">
           {services.map((x, i) => (
-            <div key={i} className="grid gap-2 rounded-md border border-line p-3 md:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto]">
-              {(["name", "day", "time", "location", "note"] as const).map((k) => (
-                <input key={k} aria-label={k} placeholder={k[0].toUpperCase() + k.slice(1)} value={x[k] ?? ""} maxLength={160}
+            <div key={i} className="grid gap-2 rounded-md border border-line p-3 md:grid-cols-[1fr_1fr_1fr_1fr_1fr_1.4fr_auto]">
+              {(["name", "day", "time", "location", "note", "joinUrl"] as const).map((k) => (
+                <input key={k} aria-label={k === "joinUrl" ? "Online join link (https)" : k} placeholder={k === "joinUrl" ? "Zoom link (https://…)" : k[0].toUpperCase() + k.slice(1)} value={x[k] ?? ""} maxLength={k === "joinUrl" ? 400 : 160}
                   onChange={(e) => setServices(services.map((y, j) => (j === i ? { ...y, [k]: e.target.value } : y)))} className={inputCls} />
               ))}
               <button type="button" onClick={() => setServices(services.filter((_, j) => j !== i))} aria-label="Remove service" className="rounded-md border border-line px-3 text-muted hover:text-red-700"><Trash2 className="h-4 w-4" /></button>

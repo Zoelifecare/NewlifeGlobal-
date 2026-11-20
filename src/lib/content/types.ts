@@ -19,6 +19,8 @@ export interface ServiceTime {
   time: string;
   location: string;
   note?: string;
+  /** Online meeting link (https), e.g. Zoom for Morning Glory prayer. */
+  joinUrl?: string;
 }
 
 export interface SiteSettings {

@@ -65,7 +65,7 @@ export const seedSettings: SiteSettings = {
     { name: "Sunday Service", day: "Every Sunday", time: "3:00 to 5:00 PM", location: "800 W Galveston St, Chandler" },
     { name: "Night Prayer", day: "First Friday of the month", time: "9:00 PM to 12:00 AM", location: "800 W Galveston St, Chandler" },
     { name: "Night of Worship", day: "Other Fridays", time: "8:00 to 11:00 PM", location: "Gilbert, AZ", note: "Contact us for the location" },
-    { name: "Morning Glory", day: "Daily except Monday & Saturday", time: "5:00 AM", location: "Morning prayer", note: "Contact us to join" },
+    { name: "Morning Glory", day: "Daily except Monday & Saturday", time: "5:00 AM", location: "Online on Zoom", joinUrl: "https://us06web.zoom.us/j/86361850934?pwd=FjgiUNYVWfhaBrpRXjPTa4ZgVBVMBL.1" },
   ],
   contact: { email: null, phone: null },
   social: [{ label: "Instagram", url: "https://www.instagram.com/newlifeglobalaz/" }],
@@ -103,7 +103,7 @@ export const seedSettings: SiteSettings = {
     { q: "When do you meet?", a: "Every Sunday from 3:00 to 5:00 PM." },
     { q: "Where do you meet?", a: "800 W Galveston St, Chandler, AZ 85225." },
     { q: "Is there something for children?", a: "Yes. We have a growing Sunday School. Contact us if you have questions before your visit." },
-    { q: "Can I pray with the church during the week?", a: "Yes. Night Prayer is on the first Friday of each month at 9:00 PM, and Morning Glory prayer is at 5:00 AM every day except Monday and Saturday." },
+    { q: "Can I pray with the church during the week?", a: "Yes. Night Prayer is on the first Friday of each month at 9:00 PM, and Morning Glory prayer is at 5:00 AM on Zoom every day except Monday and Saturday. The Zoom link is on the Visit and Prayer pages." },
   ],
 };
 

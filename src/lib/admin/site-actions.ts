@@ -82,6 +82,7 @@ export async function saveSettings(_prev: ActionResult | null, fd: FormData): Pr
   try {
     services = (JSON.parse(String(fd.get("services") ?? "[]")) as Record<string, unknown>[]).slice(0, 12).map((s) => ({
       name: txt(s.name, 80), day: txt(s.day, 80), time: txt(s.time, 60), location: txt(s.location, 160), ...(txt(s.note, 160) ? { note: txt(s.note, 160) } : {}),
+      ...(/^https:\/\/[^\s]+$/.test(txt(s.joinUrl, 400)) ? { joinUrl: txt(s.joinUrl, 400) } : {}),
     })).filter((s) => s.name);
     social = (JSON.parse(String(fd.get("social") ?? "[]")) as Record<string, unknown>[]).slice(0, 10)
       .map((s) => ({ label: txt(s.label, 60), url: txt(s.url, 300) })).filter((s) => s.label && /^https:\/\//.test(s.url));
