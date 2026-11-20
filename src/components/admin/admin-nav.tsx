@@ -4,17 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BookOpen, CalendarDays, ExternalLink, FolderTree, HandHeart, Home, Landmark, Image as ImageIcon, LayoutDashboard, LayoutTemplate,
+  BookOpen, CalendarDays, Coins, ExternalLink, FolderTree, HandHeart, Home, Landmark, Image as ImageIcon, LayoutDashboard, LayoutTemplate,
   LogOut, Mail, Megaphone, Menu, ScrollText, Shield, Users, UsersRound, Video, X,
 } from "lucide-react";
 
 interface Props {
-  isAdmin: boolean; canEditContent: boolean; canReadPrayer: boolean;
+  isAdmin: boolean; canEditContent: boolean; canReadPrayer: boolean; canManageFinance: boolean;
   user: { name: string; email: string; roles: string[] };
   signOut: () => Promise<void>;
 }
 
-export function AdminNav({ isAdmin, canEditContent, canReadPrayer, user, signOut }: Props) {
+export function AdminNav({ isAdmin, canEditContent, canReadPrayer, canManageFinance, user, signOut }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -33,6 +33,10 @@ export function AdminNav({ isAdmin, canEditContent, canReadPrayer, user, signOut
         { href: "/admin/leadership", label: "Leadership", icon: UsersRound, show: canEditContent },
         { href: "/admin/media", label: "Media library", icon: FolderTree, show: true },
       ],
+    },
+    {
+      title: "Finance",
+      items: [{ href: "/admin/giving", label: "Giving", icon: Coins, show: canManageFinance }],
     },
     {
       title: "Inbox",

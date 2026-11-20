@@ -186,3 +186,24 @@ export interface Announcement {
   linkLabel: string | null;
   isPinned: boolean;
 }
+
+export type PaymentKind = "online_link" | "zelle" | "cashapp" | "bank_transfer" | "cash_drop" | "check" | "other";
+
+export interface PaymentMethodPublic {
+  id: string;
+  kind: PaymentKind;
+  label: string;
+  description: string | null;
+  instructions: string | null;
+  handle: string | null;
+  url: string | null;
+  location: string | null;
+  referenceInfo: string | null;
+  image: Media | null;
+  supportsRecurring: boolean;
+}
+
+export interface GivingCatalog {
+  designations: { id: string; name: string; description: string | null }[];
+  methods: PaymentMethodPublic[];
+}

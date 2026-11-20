@@ -15,6 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         isAdmin={staff.isAdmin}
         canEditContent={staff.canEditContent}
         canReadPrayer={staff.canReadPrayer}
+        canManageFinance={staff.canManageFinance}
         user={{ name: staff.name, email: staff.email, roles: staff.roles.map((r) => ROLE_LABEL[r]) }}
         signOut={signOut}
       />

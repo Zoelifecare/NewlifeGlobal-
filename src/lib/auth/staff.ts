@@ -3,7 +3,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export type Role = "super_admin" | "content_editor" | "ministry_manager";
+export type Role = "super_admin" | "content_editor" | "ministry_manager" | "finance_manager";
 
 export interface Staff {
   id: string;
@@ -15,6 +15,7 @@ export interface Staff {
   isAdmin: boolean;
   canEditContent: boolean;
   canReadPrayer: boolean;
+  canManageFinance: boolean;
 }
 
 /** Current signed-in staff member, or null (not signed in / no role). Verified with the Auth server via getUser(). */
@@ -40,6 +41,7 @@ export const getStaff = cache(async (): Promise<Staff | null> => {
     isAdmin,
     canEditContent,
     canReadPrayer: isAdmin || (r.length > 0 && Boolean(profile?.is_prayer_team)),
+    canManageFinance: isAdmin || r.includes("finance_manager"),
   };
 });
 
@@ -51,12 +53,13 @@ export async function requireStaff(): Promise<Staff> {
   return staff;
 }
 
-export type Capability = "content" | "admin" | "prayer" | "ministry";
+export type Capability = "content" | "admin" | "prayer" | "ministry" | "finance";
 
 export function can(staff: Staff, cap: Capability) {
   if (cap === "admin") return staff.isAdmin;
   if (cap === "content") return staff.canEditContent;
   if (cap === "prayer") return staff.canReadPrayer;
+  if (cap === "finance") return staff.canManageFinance;
   return staff.canEditContent || staff.ministryIds.length > 0;
 }
 
@@ -70,4 +73,5 @@ export const ROLE_LABEL: Record<Role, string> = {
   super_admin: "Super Admin",
   content_editor: "Content Editor",
   ministry_manager: "Ministry Manager",
+  finance_manager: "Finance Manager",
 };

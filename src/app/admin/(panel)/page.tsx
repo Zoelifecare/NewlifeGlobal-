@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, CalendarDays, Landmark, Image as ImageIcon, Mail, Megaphone, Video } from "lucide-react";
+import { BookOpen, CalendarDays, CalendarHeart, Coins, Landmark, Image as ImageIcon, Mail, Megaphone, Video } from "lucide-react";
 import { requireStaff } from "@/lib/auth/staff";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, PageTitle, fmtDate } from "@/components/admin/ui";
@@ -25,6 +25,8 @@ export default async function Overview({ searchParams }: { searchParams: Promise
     { label: "New prayer requests", value: c.prayer_pending, href: "/admin/prayer", icon: BookOpen, show: staff.canReadPrayer, alert: true },
     { label: "Changes awaiting approval", value: c.approvals_pending, href: "/admin/identity", icon: Landmark, show: staff.canEditContent, alert: true },
     { label: "Sections needing confirmation", value: c.needs_confirmation, href: "/admin/identity", icon: Landmark, show: staff.canEditContent, alert: true },
+    { label: "New pledges", value: c.pledges_new, href: "/admin/giving/pledges?status=new", icon: CalendarHeart, show: staff.canManageFinance, alert: true },
+    { label: "Gifts awaiting verification", value: c.giving_pending, href: "/admin/giving/submissions", icon: Coins, show: staff.canManageFinance, alert: true },
   ].filter((t) => t.show);
 
   return (
@@ -73,6 +75,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
             {staff.canEditContent && <li><Link className="text-blue-deep hover:underline" href="/admin/events/new">Create an event</Link></li>}
             <li><Link className="text-blue-deep hover:underline" href="/admin/media">Upload photos</Link></li>
             {staff.canEditContent && <li><Link className="text-blue-deep hover:underline" href="/admin/homepage">Edit the homepage</Link></li>}
+            {staff.canManageFinance && <li><Link className="text-blue-deep hover:underline" href="/admin/giving/donations/new">Record a donation</Link></li>}
             {staff.canEditContent && <li><Link className="text-blue-deep hover:underline" href="/admin/settings">Update service times & contact details</Link></li>}
           </ul>
         </Card>

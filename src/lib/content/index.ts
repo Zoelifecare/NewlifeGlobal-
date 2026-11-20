@@ -6,7 +6,7 @@ import { isSupabaseConfigured, publicStorageUrl } from "@/lib/supabase/config";
 import { seed } from "./seed";
 import type {
   Announcement, ChurchEvent, GalleryCategory, GalleryItem, HomepageSection, Leader, Media, Ministry,
-  Sermon, SermonCategory, SiteSettings, ChurchContent, ChurchContentValue,
+  Sermon, SermonCategory, SiteSettings, ChurchContent, ChurchContentValue, GivingCatalog, PaymentMethodPublic,
 } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -275,3 +275,31 @@ export const getAnnouncements = cache(withSeedFallback("getAnnouncements", _getA
 export const getChurchContent = cache(withSeedFallback("getChurchContent", _getChurchContent));
 export const getSermons = withSeedFallback("getSermons", _getSermons);
 export const getEvents = withSeedFallback("getEvents", _getEvents);
+
+// ------------------------------------------------------------------ giving catalogue (active designations + approved payment methods)
+const seedMethod = (n: number, kind: PaymentMethodPublic["kind"], label: string, description: string, instructions: string, supportsRecurring: boolean): PaymentMethodPublic => ({
+  id: `00000000-0000-4000-8000-00000000000${n}`, kind, label, description, instructions, handle: null, url: null, location: null, referenceInfo: null, image: null, supportsRecurring,
+});
+const SEED_GIVING: GivingCatalog = {
+  designations: [],
+  methods: [
+    seedMethod(2, "zelle", "Zelle", "Send from your banking app with Zelle.", "Open your banking app, choose Zelle and send your gift to the church number below. Add \"Gift\" and your designation in the memo.", true),
+    seedMethod(3, "cashapp", "Cash App", "Send with Cash App.", "Open Cash App and send your gift to the church number below. Add \"Gift\" in the note.", true),
+    seedMethod(4, "bank_transfer", "Bank transfer", "Give directly from your bank.", "Contact the church office for bank transfer details. Account details are shared privately, never on this website.", true),
+    seedMethod(5, "cash_drop", "Cash Drop", "Give cash in person at church.", "Bring your gift to Sunday Service at 3:00 PM, 800 W Galveston St, Chandler, AZ. Ask a member of the welcome team where to give.", false),
+  ],
+};
+const _getGivingCatalog = async (): Promise<GivingCatalog> => {
+  if (!dbReady()) return SEED_GIVING; // same defaults as the giving migration
+  const [d, m] = await Promise.all([
+    db().from("giving_designations").select("id, name, description").eq("is_active", true).order("sort_order"),
+    db().from("payment_methods").select("*, image:media_assets(*)").eq("is_active", true).order("sort_order"),
+  ]);
+  const designations = must(d, "giving designations") as GivingCatalog["designations"];
+  const methods = (must(m, "payment methods") as Row[]).map((r) => ({
+    id: r.id, kind: r.kind, label: r.label, description: r.description, instructions: r.instructions, handle: r.handle,
+    url: r.url, location: r.location, referenceInfo: r.reference_info, image: mapMedia(r.image), supportsRecurring: r.supports_recurring,
+  })) as PaymentMethodPublic[];
+  return { designations, methods };
+};
+export const getGivingCatalog = cache(withSeedFallback("getGivingCatalog", _getGivingCatalog));

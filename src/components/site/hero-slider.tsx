@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pause, Play, PlayCircle } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import { LongArrow } from "./icons";
 
@@ -13,6 +13,8 @@ export interface HeroSlideView {
   headline: string;
   body: string;
   image: { url: string; alt: string } | null;
+  /** A message to feature (e.g. Pastor Charles preaching): shown as a framed video card. */
+  video?: { id: string; title: string; href: string } | null;
 }
 
 const DURATION = 7000;
@@ -28,6 +30,7 @@ export function HeroSlider({
   const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [hoverPause, setHoverPause] = useState(false);
+  const [videoOn, setVideoOn] = useState<string | null>(null);
   const start = useRef<number>(0);
   const elapsed = useRef(0);
   const touchX = useRef<number | null>(null);
@@ -37,6 +40,7 @@ export function HeroSlider({
     setActive(((i % n) + n) % n);
     elapsed.current = 0;
     setProgress(0);
+    setVideoOn(null); // stop the message when changing slides
   }, [n]);
 
   const reduceMotion = useReducedMotion();
@@ -89,6 +93,10 @@ export function HeroSlider({
           aria-hidden={i !== active}
           className={`absolute inset-0 -z-10 transition-opacity duration-[1100ms] ease-out-expo ${i === active ? "opacity-100" : "opacity-0"}`}
         >
+          {!s.image && s.video && (
+            <Image src={`https://i.ytimg.com/vi/${s.video.id}/maxresdefault.jpg`} alt="" fill sizes="100vw" priority={i === 0}
+              className="scale-110 object-cover opacity-70 blur-[6px]" />
+          )}
           {s.image && (
             <Image
               src={s.image.url}
@@ -106,7 +114,7 @@ export function HeroSlider({
 
       {/* content */}
       <div className="nl-container flex flex-1 flex-col justify-end pb-10 pt-[calc(var(--nl-header-h)+3rem)] md:justify-center md:pb-0">
-        <div key={slide.index} className="max-w-[58rem]" aria-live="polite">
+        <div key={slide.index} className={`max-w-[58rem] ${slide.video ? "lg:max-w-[46%]" : ""}`} aria-live="polite">
           <p className="nl-label nl-label--light mb-6 animate-[fadeUp_.9s_var(--nl-ease)_both]">
             {slide.index} · {slide.label}
           </p>
@@ -114,7 +122,31 @@ export function HeroSlider({
           <p className="mt-6 max-w-[38rem] text-[1.05rem] leading-relaxed text-white/85 md:text-[1.15rem] animate-[fadeUp_1s_var(--nl-ease)_.15s_both]">
             {slide.body}
           </p>
+          {slide.video && (
+            <Link href={slide.video.href} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-blue lg:hidden">
+              <PlayCircle className="h-5 w-5" aria-hidden />Watch: {slide.video.title}
+            </Link>
+          )}
         </div>
+        {slide.video && (
+          <div key={`v-${slide.index}`} className="absolute right-[calc(var(--nl-pad)+3rem)] top-1/2 z-10 hidden w-[min(38vw,36rem)] -translate-y-1/2 animate-[fadeUp_1.1s_var(--nl-ease)_.2s_both] lg:block">
+            {videoOn === slide.video.id ? (
+              <span className="relative block aspect-video overflow-hidden border border-white/20 bg-black shadow-[0_30px_80px_-20px_rgba(0,0,0,.6)]">
+                <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube-nocookie.com/embed/${slide.video.id}?autoplay=1&rel=0&modestbranding=1`}
+                  title={slide.video.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />
+              </span>
+            ) : (
+              <button type="button" onClick={() => { setVideoOn(slide.video!.id); setPlaying(false); }} aria-label={`Play ${slide.video.title}`}
+                className="group relative block aspect-video w-full overflow-hidden border border-white/20 shadow-[0_30px_80px_-20px_rgba(0,0,0,.6)]">
+                <Image src={`https://i.ytimg.com/vi/${slide.video.id}/maxresdefault.jpg`} alt={`Pastor Charles Mugisha preaching: ${slide.video.title}`} fill sizes="38vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                <span className="absolute inset-0 flex items-center justify-center bg-ink/20 transition-colors group-hover:bg-ink/5">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-blue text-blue-ink transition-transform group-hover:scale-110"><Play className="ml-1 h-6 w-6" aria-hidden /></span>
+                </span>
+              </button>
+            )}
+            <Link href={slide.video.href} className="mt-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/75 hover:text-blue"><span className="h-px w-6 bg-blue" />Open the full message page</Link>
+          </div>
+        )}
         <div className="mt-9 grid max-w-[44rem] gap-3 sm:grid-cols-2 sm:gap-0">
           <Link href={primary.href} className="nl-btn nl-btn--lg !justify-between !bg-blue-deep sm:!py-7">
             <span>{primary.label}</span>

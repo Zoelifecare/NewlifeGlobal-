@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { addRole, inviteUser, removeRole, setPrayerTeam } from "@/lib/admin/user-actions";
 import { btnPrimary, inputCls } from "./ui";
 
-const ROLE_OPTS = [{ v: "content_editor", l: "Content Editor" }, { v: "ministry_manager", l: "Ministry Manager" }, { v: "super_admin", l: "Super Admin" }];
+const ROLE_OPTS = [{ v: "content_editor", l: "Content Editor" }, { v: "ministry_manager", l: "Ministry Manager" }, { v: "finance_manager", l: "Finance Manager" }, { v: "super_admin", l: "Super Admin" }];
 
 export function InviteForm({ ministries }: { ministries: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState(inviteUser, null);

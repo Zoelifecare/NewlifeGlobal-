@@ -8,7 +8,7 @@ import { siteUrl } from "@/lib/site-url";
 import type { ActionResult } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const ROLES = ["super_admin", "content_editor", "ministry_manager"];
+const ROLES = ["super_admin", "content_editor", "ministry_manager", "finance_manager"];
 
 async function admin() {
   const s = await requireStaff();

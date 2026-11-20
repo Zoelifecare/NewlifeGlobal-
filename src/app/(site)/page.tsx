@@ -36,9 +36,11 @@ export default async function HomePage() {
   const render = (s: HomepageSection<D>) => {
     switch (s.key) {
       case "hero": {
-        const slides: HeroSlideView[] = (s.data.slides ?? []).map((sl: D) => ({
-          index: sl.index, label: sl.label, caption: sl.caption, headline: sl.headline, body: sl.body,
-          image: img(sl.mediaId) ? { url: img(sl.mediaId)!.url, alt: img(sl.mediaId)!.alt } : null,
+        // featured slides only, in the admin's order; numbering follows that order
+        const slides: HeroSlideView[] = (s.data.slides ?? []).filter((sl: D) => sl.featured !== false).map((sl: D, i: number) => ({
+          index: String(i + 1).padStart(2, "0"), label: sl.label, caption: sl.caption, headline: sl.headline, body: sl.body,
+          image: img(sl.mediaId) ? { url: img(sl.mediaId)!.url, alt: sl.alt?.trim() || img(sl.mediaId)!.alt } : null,
+          video: sl.video?.id && /^[\w-]{11}$/.test(sl.video.id) ? { id: sl.video.id, title: sl.video.title || "Watch the message", href: /^\/(?!\/)/.test(sl.video.href ?? "") ? sl.video.href : "/messages" } : null,
         }));
         if (!slides.length) return null;
         return <HeroSlider key={s.key} slides={slides} primary={s.data.primaryCta} secondary={s.data.secondaryCta} />;

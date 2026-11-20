@@ -27,7 +27,7 @@ export const seedMedia: Media[] = [
     const n = String(i + 1).padStart(2, "0");
     return m(`ig-rw-${n}`, `refresh-women-2026-${n}`, `Refresh Women 2026 conference at New Life Global, photo ${i + 1}`, "conferences", "DZdhdFGklcE");
   }),
-  m("ig-seat-saved", "sunday-seat-saved", "Preaching at New Life Global in Chandler", "services", "Dc7f_W0u-5_"),
+  m("ig-seat-saved", "sunday-seat-saved", "Pastor Fred Katagwa preaching at New Life Global in Chandler", "services", "Dc7f_W0u-5_"),
   m("ig-fellowship", "sunday-fellowship-reel", "Sunday fellowship and praise at New Life Global", "worship", "DcaCLRBOIIi"),
   m("ig-serving", "serving-team", "Members of New Life Global serving on Sunday", "community", "Db9jqlBlA-2"),
   m("ig-sunday-school", "sunday-school-reel", "New Life Global Sunday School", "community", "DaTGyC9uiwW"),
@@ -302,10 +302,17 @@ export const seedHomepage: HomepageSection[] = [
     data: {
       primaryCta: { label: "Plan Your Visit", href: "/visit" },
       secondaryCta: { label: "Explore New Life", href: "#chapters" },
+      // Order requested by the owner: Pastor Charles preaching first, then the worship team, then other church life.
+      // MISSING ASSET: no clean photo of Pastor Charles preaching is in the media library yet (the sermon
+      // thumbnails carry title text, and the Instagram preaching photo is of Pastor Fred Katagwa), so slide 01
+      // features his published sermon as a video card until an approved photo is uploaded.
       slides: [
-        { index: "01", label: "Faith & Worship", caption: "Worship, prayer and the Word", headline: "A place of love.\nA family of faith.", body: "A future of hope in Chandler, Arizona. Come worship with us every Sunday at 3:00 PM.", mediaId: "ig-rw-04" },
-        { index: "02", label: "Community & Discipleship", caption: "Growing together as one family", headline: "Worship.\nGrow. Serve.", body: "From Sunday School to Refresh Women, we grow in Christ together and serve one another with joy.", mediaId: "ig-rw-05" },
-        { index: "03", label: "Go & Make Disciples", caption: "Matthew 28:19", headline: "Go.\nMake disciples.", body: "Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost. Matthew 28:19", mediaId: "ig-rw-07" },
+        { label: "The Word", caption: "Pastor Charles Mugisha", headline: "Hear the Word.\nLive it out.", body: "Messages from Pastor Charles Mugisha. Join us every Sunday at 3:00 PM in Chandler, Arizona.", mediaId: null, alt: "", featured: true,
+          video: { id: "tsNcq0xw4pU", title: "The Development Stages of Marriage", href: "/messages/the-development-stages-of-marriage" },
+          assetNote: "Needs an approved photo of Pastor Charles Mugisha preaching. Upload it in Media and choose it here." },
+        { label: "Faith & Worship", caption: "Our worship team", headline: "A place of love.\nA family of faith.", body: "We worship God in a lively and heartfelt atmosphere. Come worship with us every Sunday at 3:00 PM.", mediaId: "ig-rw-05", alt: "The New Life Global worship team leading worship", featured: true },
+        { label: "Community & Discipleship", caption: "Growing together as one family", headline: "Worship.\nGrow. Serve.", body: "From Sunday School to Refresh Women, we grow in Christ together and serve one another with joy.", mediaId: "ig-church-family", alt: "", featured: true },
+        { label: "Go & Make Disciples", caption: "Matthew 28:19", headline: "Go.\nMake disciples.", body: "Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost. Matthew 28:19", mediaId: "ig-rw-07", alt: "", featured: true },
       ],
     },
   },

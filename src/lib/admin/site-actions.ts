@@ -38,13 +38,23 @@ function sanitizeSectionData(key: string, d: Record<string, unknown>): Record<st
   if (key === "hero") {
     const slides = Array.isArray(d.slides) ? d.slides.slice(0, 5) : [];
     if (!slides.length) return "Add at least one hero slide.";
-    return {
+    const out = {
       primaryCta: cta(d.primaryCta), secondaryCta: cta(d.secondaryCta),
-      slides: slides.map((s: Record<string, unknown>, i: number) => ({
-        index: String(i + 1).padStart(2, "0"), label: txt(s.label, 60), caption: txt(s.caption, 120),
-        headline: txt(s.headline, 160), body: txt(s.body, 500), mediaId: media(s.mediaId),
-      })),
+      slides: slides.map((s: Record<string, unknown>, i: number) => {
+        const v = (s.video ?? {}) as Record<string, unknown>;
+        const videoId = yt(v.id);
+        return {
+          index: String(i + 1).padStart(2, "0"), label: txt(s.label, 60), caption: txt(s.caption, 120),
+          headline: txt(s.headline, 160), body: txt(s.body, 500), mediaId: media(s.mediaId) ?? null, alt: txt(s.alt, 200),
+          featured: s.featured !== false,
+          video: videoId ? { id: videoId, title: txt(v.title, 120), href: link(v.href) || "/messages" } : null,
+          assetNote: txt(s.assetNote, 300),
+        };
+      }),
     };
+    const shown = (out.slides as { featured: boolean }[]).filter((x) => x.featured).length;
+    if (!shown) return "Feature at least one slide.";
+    return out;
   }
   if (key === "chapters") {
     const chapters = Array.isArray(d.chapters) ? d.chapters.slice(0, 6) : [];

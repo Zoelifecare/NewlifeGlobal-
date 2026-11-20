@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { ChevronDown, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import type { Media } from "@/lib/content/types";
 import { saveHomepageSection } from "@/lib/admin/site-actions";
 import { MediaPicker } from "./media-picker";
@@ -90,20 +90,63 @@ function SectionForm({ s, media }: { s: Section; media: Media[] }) {
               </fieldset>
             ))}
           </div>
-          {(data.slides ?? []).map((sl: any, i: number) => (
-            <fieldset key={i} className="grid gap-3 rounded-md border border-line p-4">
-              <legend className="px-1 text-xs font-bold uppercase tracking-wider text-muted">Slide {String(i + 1).padStart(2, "0")}</legend>
-              <div className="grid gap-3 md:grid-cols-2">
-                <input aria-label="Chapter label" placeholder="Chapter label (e.g. Faith & Worship)" value={sl.label ?? ""} onChange={(e) => upd(i, { label: e.target.value })} className={inputCls} />
-                <input aria-label="Caption" placeholder="Caption under the label" value={sl.caption ?? ""} onChange={(e) => upd(i, { caption: e.target.value })} className={inputCls} />
+          <p className="text-sm text-muted">Slides play in this order. Only featured slides are shown. Owner order: Pastor Charles preaching first, then the worship team, then other church life.</p>
+          {(data.slides ?? []).map((sl: any, i: number) => {
+            const m = media.find((x) => x.id === sl.mediaId) ?? null;
+            const missing = !m && !sl.video?.id;
+            const videoOnly = !m && sl.video?.id;
+            return (
+            <fieldset key={i} className={`grid gap-3 rounded-md border p-4 ${sl.featured === false ? "border-dashed border-line opacity-70" : "border-line"}`}>
+              <legend className="flex items-center gap-2 px-1 text-xs font-bold uppercase tracking-wider text-muted">
+                Slide {String(i + 1).padStart(2, "0")}{sl.featured === false && <span className="rounded bg-gray-100 px-1.5 py-0.5 normal-case tracking-normal">not featured</span>}
+              </legend>
+              <div className="flex flex-wrap items-center gap-3">
+                <button type="button" disabled={i === 0} onClick={() => move(i, -1)} className="inline-flex items-center gap-1 rounded border border-line px-2 py-1 text-xs font-semibold disabled:opacity-40"><ArrowUp className="h-3.5 w-3.5" />Move up</button>
+                <button type="button" disabled={i === data.slides.length - 1} onClick={() => move(i, 1)} className="inline-flex items-center gap-1 rounded border border-line px-2 py-1 text-xs font-semibold disabled:opacity-40"><ArrowDown className="h-3.5 w-3.5" />Move down</button>
+                <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={sl.featured !== false} onChange={(e) => upd(i, { featured: e.target.checked })} className="h-4 w-4 accent-[var(--nl-blue-deep)]" />Featured (shown on the homepage)</label>
               </div>
-              <textarea aria-label="Headline" placeholder="Headline (press Enter for a new line)" rows={2} value={sl.headline ?? ""} onChange={(e) => upd(i, { headline: e.target.value })} className={inputCls} />
-              <textarea aria-label="Description" placeholder="Description" rows={3} value={sl.body ?? ""} onChange={(e) => upd(i, { body: e.target.value })} className={inputCls} />
-              <MediaPicker name={`slide-${i}`} initialId={sl.mediaId ?? null} media={media} onChange={(id) => upd(i, { mediaId: id })} />
+              {(missing || sl.assetNote) && (
+                <p role="note" className="rounded-md border border-amber-200 bg-amber-50 p-2.5 text-sm text-amber-900">
+                  <strong>Missing asset.</strong> {sl.assetNote || "This slide has no image or video. Choose an approved image from the media library."}
+                </p>
+              )}
+              <div className="grid gap-4 md:grid-cols-[1fr_16rem]">
+                <div className="grid gap-3">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <input aria-label="Chapter label" placeholder="Chapter label (e.g. Faith & Worship)" value={sl.label ?? ""} onChange={(e) => upd(i, { label: e.target.value })} className={inputCls} />
+                    <input aria-label="Caption" placeholder="Caption under the label" value={sl.caption ?? ""} onChange={(e) => upd(i, { caption: e.target.value })} className={inputCls} />
+                  </div>
+                  <textarea aria-label="Headline" placeholder="Headline (press Enter for a new line)" rows={2} value={sl.headline ?? ""} onChange={(e) => upd(i, { headline: e.target.value })} className={inputCls} />
+                  <textarea aria-label="Description" placeholder="Description" rows={3} value={sl.body ?? ""} onChange={(e) => upd(i, { body: e.target.value })} className={inputCls} />
+                  <MediaPicker name={`slide-${i}`} initialId={sl.mediaId ?? null} media={media} onChange={(id) => upd(i, { mediaId: id, ...(id ? { assetNote: "" } : {}) })} />
+                  <input aria-label="Alt text" placeholder={m ? `Alt text (default: ${m.alt})` : "Alt text describing the image"} maxLength={200} value={sl.alt ?? ""} onChange={(e) => upd(i, { alt: e.target.value })} className={inputCls} />
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <input aria-label="Featured message YouTube ID" placeholder="Featured message: YouTube ID" value={sl.video?.id ?? ""} onChange={(e) => upd(i, { video: { ...sl.video, id: e.target.value.trim() } })} className={inputCls} />
+                    <input aria-label="Message title" placeholder="Message title" value={sl.video?.title ?? ""} onChange={(e) => upd(i, { video: { ...sl.video, title: e.target.value } })} className={inputCls} />
+                    <input aria-label="Message link" placeholder="/messages/…" value={sl.video?.href ?? ""} onChange={(e) => upd(i, { video: { ...sl.video, href: e.target.value } })} className={inputCls} />
+                  </div>
+                </div>
+                <div className="grid content-start gap-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted">Preview</span>
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-[#001b3d] text-white">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {m && <img src={m.url} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {videoOnly && <img src={`https://i.ytimg.com/vi/${sl.video.id}/hqdefault.jpg`} alt="" className="absolute right-2 top-1/2 w-1/2 -translate-y-1/2 border border-white/30" />}
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,27,61,.88)_0%,rgba(0,27,61,.4)_60%,transparent)]" />
+                    <div className="absolute bottom-2 left-2 right-2 grid gap-0.5">
+                      <span className="text-[0.55rem] font-bold uppercase tracking-[0.18em] text-white/70">{String(i + 1).padStart(2, "0")} · {sl.label}</span>
+                      <span className="whitespace-pre-line text-sm font-semibold leading-tight">{sl.headline}</span>
+                    </div>
+                    {missing && <span className="absolute left-2 top-2 rounded bg-amber-400 px-1.5 text-[0.6rem] font-bold uppercase text-amber-950">No image</span>}
+                  </div>
+                </div>
+              </div>
               <button type="button" onClick={() => setData({ ...data, slides: data.slides.filter((_: unknown, j: number) => j !== i) })} className="inline-flex w-fit items-center gap-1 text-sm text-red-700"><Trash2 className="h-4 w-4" />Remove slide</button>
             </fieldset>
-          ))}
-          {(data.slides?.length ?? 0) < 5 && <button type="button" onClick={() => setData({ ...data, slides: [...(data.slides ?? []), { label: "", caption: "", headline: "", body: "" }] })} className="inline-flex w-fit items-center gap-1 text-sm font-semibold text-blue-deep"><Plus className="h-4 w-4" />Add slide</button>}
+            );
+          })}
+          {(data.slides?.length ?? 0) < 5 && <button type="button" onClick={() => setData({ ...data, slides: [...(data.slides ?? []), { label: "", caption: "", headline: "", body: "", featured: true }] })} className="inline-flex w-fit items-center gap-1 text-sm font-semibold text-blue-deep"><Plus className="h-4 w-4" />Add slide</button>}
         </div>
       )}
 
@@ -144,6 +187,11 @@ function SectionForm({ s, media }: { s: Section; media: Media[] }) {
     </div>
   );
 
+  function move(i: number, dir: -1 | 1) {
+    const next = [...data.slides]; const j = i + dir;
+    [next[i], next[j]] = [next[j], next[i]];
+    setData({ ...data, slides: next });
+  }
   function upd(i: number, patch: Record<string, unknown>) { setData({ ...data, slides: data.slides.map((x: any, j: number) => (j === i ? { ...x, ...patch } : x)) }); }
   function updC(i: number, patch: Record<string, unknown>) { setData({ ...data, chapters: data.chapters.map((x: any, j: number) => (j === i ? { ...x, ...patch } : x)) }); }
 }
