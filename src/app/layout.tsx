@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { getSettings } from "@/lib/content";
 import { siteUrl } from "@/lib/site-url";
+import { AuthHashHandler } from "@/components/auth-hash-handler";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* marks JS-enabled browsers so reveal animations never hide content without JS */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
       </head>
-      <body>{children}</body>
+      <body>{children}<AuthHashHandler /></body>
     </html>
   );
 }
