@@ -31,6 +31,28 @@ function must<T>(res: { data: T | null; error: { message: string } | null }, wha
   return res.data as T;
 }
 
+
+/* ---------------------------------------------------------------- resilience
+   If the database is unreachable or not migrated yet, serve the verified seed content
+   instead of failing the page (or the build). Retries the database after 60 seconds. */
+let dbDownUntil = 0;
+function dbReady() {
+  return isSupabaseConfigured && Date.now() >= dbDownUntil;
+}
+function withSeedFallback<A extends unknown[], R>(what: string, fn: (...args: A) => Promise<R>) {
+  return async (...args: A): Promise<R> => {
+    const usedDb = dbReady(); // decided per call: concurrent failures must each fall back
+    try {
+      return await fn(...args);
+    } catch (error) {
+      if (!usedDb) throw error; // the seed path itself failed: a real bug, surface it
+      dbDownUntil = Date.now() + 60_000;
+      console.error(`[content] ${what}: database unavailable, serving seed content for 60s:`, error instanceof Error ? error.message : error);
+      return fn(...args);
+    }
+  };
+}
+
 // ------------------------------------------------------------------ mappers
 export function mapMedia(r: Row | null | undefined): Media | null {
   if (!r) return null;
@@ -88,8 +110,8 @@ const EVENT_SELECT = "*, image:media_assets(*)";
 // ------------------------------------------------------------------ settings
 const camel = (s: string) => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 
-export const getSettings = cache(async (): Promise<SiteSettings> => {
-  if (!isSupabaseConfigured) return seed.settings;
+const _getSettings = (async (): Promise<SiteSettings> => {
+  if (!dbReady()) return seed.settings;
   const rows = must(await db().from("site_settings").select("key, value"), "settings") as Row[];
   const merged: Row = { ...seed.settings };
   for (const r of rows) {
@@ -99,10 +121,10 @@ export const getSettings = cache(async (): Promise<SiteSettings> => {
 });
 
 // ------------------------------------------------------------------ media
-export const getMediaByIds = cache(async (ids: string[]): Promise<Record<string, Media>> => {
+const _getMediaByIds = (async (ids: string[]): Promise<Record<string, Media>> => {
   const wanted = [...new Set(ids.filter(Boolean))];
   if (!wanted.length) return {};
-  if (!isSupabaseConfigured) {
+  if (!dbReady()) {
     return Object.fromEntries(seed.media.filter((m) => wanted.includes(m.id)).map((m) => [m.id, m]));
   }
   // Seed ids ("ig-rw-04") map to md5-derived uuids in the database (scripts/generate-seed.mjs).
@@ -112,8 +134,8 @@ export const getMediaByIds = cache(async (ids: string[]): Promise<Record<string,
 });
 
 // ------------------------------------------------------------------ homepage
-export const getHomepage = cache(async (): Promise<HomepageSection[]> => {
-  if (!isSupabaseConfigured) return seed.homepage.filter((s) => s.isVisible).sort((a, b) => a.sortOrder - b.sortOrder);
+const _getHomepage = (async (): Promise<HomepageSection[]> => {
+  if (!dbReady()) return seed.homepage.filter((s) => s.isVisible).sort((a, b) => a.sortOrder - b.sortOrder);
   const rows = must(
     await db().from("homepage_sections").select("*").eq("is_visible", true).order("sort_order"), "homepage",
   ) as Row[];
@@ -123,19 +145,19 @@ export const getHomepage = cache(async (): Promise<HomepageSection[]> => {
 });
 
 // ------------------------------------------------------------------ people
-export const getLeaders = cache(async (): Promise<Leader[]> => {
-  if (!isSupabaseConfigured) return seed.leaders;
+const _getLeaders = (async (): Promise<Leader[]> => {
+  if (!dbReady()) return seed.leaders;
   return (must(await db().from("leadership").select(LEADER_SELECT).order("sort_order"), "leaders") as Row[]).map(mapLeader);
 });
 
 // ------------------------------------------------------------------ ministries
-export const getMinistries = cache(async (): Promise<Ministry[]> => {
-  if (!isSupabaseConfigured) return seed.ministries;
+const _getMinistries = (async (): Promise<Ministry[]> => {
+  if (!dbReady()) return seed.ministries;
   return (must(await db().from("ministries").select(MINISTRY_SELECT).order("sort_order"), "ministries") as Row[]).map(mapMinistry);
 });
 
-export const getMinistry = cache(async (slug: string): Promise<Ministry | null> => {
-  if (!isSupabaseConfigured) return seed.ministries.find((m) => m.slug === slug) ?? null;
+const _getMinistry = (async (slug: string): Promise<Ministry | null> => {
+  if (!dbReady()) return seed.ministries.find((m) => m.slug === slug) ?? null;
   const r = must(await db().from("ministries").select(MINISTRY_SELECT).eq("slug", slug).maybeSingle(), "ministry") as Row | null;
   return r ? mapMinistry(r) : null;
 });
@@ -143,21 +165,21 @@ export const getMinistry = cache(async (slug: string): Promise<Ministry | null> 
 // ------------------------------------------------------------------ sermons
 export interface SermonQuery { q?: string; category?: string; speaker?: string; series?: string }
 
-export const getSermonCategories = cache(async (): Promise<SermonCategory[]> => {
-  if (!isSupabaseConfigured) return seed.sermonCategories;
+const _getSermonCategories = (async (): Promise<SermonCategory[]> => {
+  if (!dbReady()) return seed.sermonCategories;
   return must(await db().from("sermon_categories").select("id, slug, name").order("sort_order"), "sermon categories") as SermonCategory[];
 });
 
-export async function getSermons(query: SermonQuery = {}): Promise<Sermon[]> {
+async function _getSermons(query: SermonQuery = {}): Promise<Sermon[]> {
   let list: Sermon[];
-  if (!isSupabaseConfigured) {
+  if (!dbReady()) {
     list = [...seed.sermons];
   } else {
     let req = db().from("sermons").select(SERMON_SELECT).order("preached_on", { ascending: false, nullsFirst: false });
     if (query.q?.trim()) req = req.textSearch("search", query.q.trim(), { type: "websearch", config: "english" });
     list = (must(await req, "sermons") as Row[]).map(mapSermon);
   }
-  if (!isSupabaseConfigured && query.q?.trim()) {
+  if (!dbReady() && query.q?.trim()) {
     const words = query.q.toLowerCase().split(/\s+/).filter(Boolean);
     list = list.filter((s) => {
       const hay = [s.title, s.speakerName, s.scripture, s.series, s.description].join(" ").toLowerCase();
@@ -170,16 +192,16 @@ export async function getSermons(query: SermonQuery = {}): Promise<Sermon[]> {
   return list.sort((a, b) => (b.preachedOn ?? "").localeCompare(a.preachedOn ?? ""));
 }
 
-export const getSermon = cache(async (slug: string): Promise<Sermon | null> => {
-  if (!isSupabaseConfigured) return seed.sermons.find((s) => s.slug === slug) ?? null;
+const _getSermon = (async (slug: string): Promise<Sermon | null> => {
+  if (!dbReady()) return seed.sermons.find((s) => s.slug === slug) ?? null;
   const r = must(await db().from("sermons").select(SERMON_SELECT).eq("slug", slug).maybeSingle(), "sermon") as Row | null;
   return r ? mapSermon(r) : null;
 });
 
 // ------------------------------------------------------------------ events
-export async function getEvents(when: "upcoming" | "past" | "all" = "all"): Promise<ChurchEvent[]> {
+async function _getEvents(when: "upcoming" | "past" | "all" = "all"): Promise<ChurchEvent[]> {
   let list: ChurchEvent[];
-  if (!isSupabaseConfigured) list = [...seed.events];
+  if (!dbReady()) list = [...seed.events];
   else list = (must(await db().from("events").select(EVENT_SELECT).order("starts_at"), "events") as Row[]).map(mapEvent);
   const now = Date.now();
   const end = (e: ChurchEvent) => new Date(e.endsAt ?? e.startsAt).getTime();
@@ -188,20 +210,20 @@ export async function getEvents(when: "upcoming" | "past" | "all" = "all"): Prom
   return list;
 }
 
-export const getEvent = cache(async (slug: string): Promise<ChurchEvent | null> => {
-  if (!isSupabaseConfigured) return seed.events.find((e) => e.slug === slug) ?? null;
+const _getEvent = (async (slug: string): Promise<ChurchEvent | null> => {
+  if (!dbReady()) return seed.events.find((e) => e.slug === slug) ?? null;
   const r = must(await db().from("events").select(EVENT_SELECT).eq("slug", slug).maybeSingle(), "event") as Row | null;
   return r ? mapEvent(r) : null;
 });
 
 // ------------------------------------------------------------------ gallery
-export const getGalleryCategories = cache(async (): Promise<GalleryCategory[]> => {
-  if (!isSupabaseConfigured) return seed.galleryCategories;
+const _getGalleryCategories = (async (): Promise<GalleryCategory[]> => {
+  if (!dbReady()) return seed.galleryCategories;
   return must(await db().from("gallery_categories").select("id, slug, name").order("sort_order"), "gallery categories") as GalleryCategory[];
 });
 
-export const getGallery = cache(async (): Promise<GalleryItem[]> => {
-  if (!isSupabaseConfigured) return seed.gallery;
+const _getGallery = (async (): Promise<GalleryItem[]> => {
+  if (!dbReady()) return seed.gallery;
   const rows = must(
     await db().from("gallery_items").select("*, media:media_assets(*), category:gallery_categories(id, slug, name)").order("sort_order"),
     "gallery",
@@ -212,8 +234,8 @@ export const getGallery = cache(async (): Promise<GalleryItem[]> => {
 });
 
 // ------------------------------------------------------------------ announcements
-export const getAnnouncements = cache(async (): Promise<Announcement[]> => {
-  if (!isSupabaseConfigured) return seed.announcements;
+const _getAnnouncements = (async (): Promise<Announcement[]> => {
+  if (!dbReady()) return seed.announcements;
   const rows = must(
     await db().from("announcements").select("*").or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
       .order("is_pinned", { ascending: false }).order("published_at", { ascending: false }),
@@ -221,3 +243,19 @@ export const getAnnouncements = cache(async (): Promise<Announcement[]> => {
   ) as Row[];
   return rows.map((r) => ({ id: r.id, title: r.title, body: r.body, linkUrl: r.link_url, linkLabel: r.link_label, isPinned: r.is_pinned }));
 });
+
+// ------------------------------------------------------------------ public API (with seed fallback)
+export const getSettings = cache(withSeedFallback("getSettings", _getSettings));
+export const getMediaByIds = cache(withSeedFallback("getMediaByIds", _getMediaByIds));
+export const getHomepage = cache(withSeedFallback("getHomepage", _getHomepage));
+export const getLeaders = cache(withSeedFallback("getLeaders", _getLeaders));
+export const getMinistries = cache(withSeedFallback("getMinistries", _getMinistries));
+export const getMinistry = cache(withSeedFallback("getMinistry", _getMinistry));
+export const getSermonCategories = cache(withSeedFallback("getSermonCategories", _getSermonCategories));
+export const getSermon = cache(withSeedFallback("getSermon", _getSermon));
+export const getEvent = cache(withSeedFallback("getEvent", _getEvent));
+export const getGalleryCategories = cache(withSeedFallback("getGalleryCategories", _getGalleryCategories));
+export const getGallery = cache(withSeedFallback("getGallery", _getGallery));
+export const getAnnouncements = cache(withSeedFallback("getAnnouncements", _getAnnouncements));
+export const getSermons = withSeedFallback("getSermons", _getSermons);
+export const getEvents = withSeedFallback("getEvents", _getEvents);
