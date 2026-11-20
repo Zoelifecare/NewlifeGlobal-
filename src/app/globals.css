@@ -1,0 +1,235 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   New Life Global design tokens
+   Structure mirrors ai.gov.rw (see docs/design-direction.md, P1–P12);
+   colours are New Life's own (docs/research/brand-guidelines.md).
+------------------------------------------------------------------- */
+:root {
+  --nl-green: #065844;      /* official — wordmark/ring */
+  --nl-leaf: #0f6b37;       /* official — cross */
+  --nl-ink: #001b3d;        /* dark sections, hero, footer — ai.gov.rw navy */
+  --nl-ink-2: #00275a;
+  --nl-paper: #f6f8fa;
+  --nl-mist: #eef2f5;      /* cool mist, as ai.gov.rw --rw-mist */
+  --nl-line: #e2e6ea;
+  --nl-line-dark: rgba(255, 255, 255, 0.14);
+  --nl-body: #4c515a;
+  --nl-muted: #5c636e;
+  --nl-mint: #7fd3f2;
+  --nl-gold: #d9b25c;
+  /* hover accent — mirrors ai.gov.rw (--rw-blue / --rw-blue-ink / --rw-blue-mist) */
+  --nl-blue: #00a1de;
+  --nl-blue-ink: #001b3d;
+  --nl-blue-deep: #003f82;   /* solid buttons + accent text on light (ai.gov.rw --rw-blue-deep) */
+  --nl-blue-mist: #eaf4fb;
+  --nl-white: #ffffff;
+
+  --nl-max: 1560px;
+  --nl-pad: clamp(1rem, 4vw, 4.5rem);
+  --nl-sec: clamp(5rem, 11vh, 9.5rem);
+  --nl-header-h: clamp(4.5rem, 6vh, 5.5rem);
+  --nl-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nl-ease-soft: cubic-bezier(0.45, 0, 0.15, 1);
+}
+
+@theme inline {
+  --color-green: var(--nl-green);
+  --color-leaf: var(--nl-leaf);
+  --color-ink: var(--nl-ink);
+  --color-ink-2: var(--nl-ink-2);
+  --color-paper: var(--nl-paper);
+  --color-mist: var(--nl-mist);
+  --color-line: var(--nl-line);
+  --color-body: var(--nl-body);
+  --color-muted: var(--nl-muted);
+  --color-mint: var(--nl-mint);
+  --color-gold: var(--nl-gold);
+  --color-blue: var(--nl-blue);
+  --color-blue-ink: var(--nl-blue-ink);
+  --color-blue-deep: var(--nl-blue-deep);
+  --color-blue-mist: var(--nl-blue-mist);
+  --font-sans: var(--font-inter), "Helvetica Neue", Helvetica, "Segoe UI", Arial, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --ease-out-expo: var(--nl-ease);
+  --ease-soft: var(--nl-ease-soft);
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--nl-white);
+  color: var(--nl-body);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--nl-blue-deep); color: #fff; }
+:focus-visible { outline: 2px solid var(--nl-blue); outline-offset: 3px; }
+img, video { max-width: 100%; }
+
+/* ---------------- layout ---------------- */
+.nl-container { width: 100%; max-width: var(--nl-max); margin-inline: auto; padding-inline: var(--nl-pad); }
+.nl-section { padding-block: var(--nl-sec); }
+.nl-section--paper { background: var(--nl-paper); }
+.nl-section--ink { background: var(--nl-ink); color: rgba(255, 255, 255, 0.78); }
+
+/* ---------------- type ---------------- */
+.nl-display {
+  font-size: clamp(2.6rem, 6.4vw, 6.5rem); line-height: 1; letter-spacing: -0.028em;
+  font-weight: 500; color: #fff; margin: 0; text-wrap: balance;
+}
+.nl-h1 { font-size: clamp(2.4rem, 5vw, 4.75rem); line-height: 1.02; letter-spacing: -0.026em; font-weight: 500; color: var(--nl-ink); margin: 0; text-wrap: balance; }
+.nl-h2 { font-size: clamp(1.9rem, 3.4vw, 3.4rem); line-height: 1.06; letter-spacing: -0.022em; font-weight: 500; color: var(--nl-ink); margin: 0; text-wrap: balance; }
+.nl-h3 { font-size: clamp(1.3rem, 1.8vw, 1.65rem); line-height: 1.2; letter-spacing: -0.012em; font-weight: 500; color: var(--nl-ink); margin: 0; }
+.nl-h4 { font-size: 1.0625rem; line-height: 1.3; font-weight: 600; color: var(--nl-ink); margin: 0; letter-spacing: -0.008em; }
+.nl-lead { font-size: clamp(1.08rem, 1.45vw, 1.35rem); line-height: 1.55; letter-spacing: -0.008em; color: var(--nl-body); max-width: 44rem; margin: 0; }
+.nl-section--ink .nl-h2, .nl-section--ink .nl-h3, .nl-section--ink .nl-h4 { color: #fff; }
+.nl-section--ink .nl-lead { color: rgba(255, 255, 255, 0.72); }
+
+.nl-label {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--nl-muted); margin: 0;
+}
+.nl-label::before { content: ""; width: 1.75rem; height: 1px; background: var(--nl-blue); flex: 0 0 auto; }
+.nl-label--light { color: rgba(255, 255, 255, 0.7); }
+.nl-label--light::before { background: var(--nl-blue); }
+.nl-label--plain::before { display: none; }
+.nl-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.nl-index { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; color: #9aa1ab; white-space: nowrap; }
+.nl-serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+
+/* ---------------- buttons (ai.gov.rw fill-from-bottom) ---------------- */
+.nl-btn {
+  --btn-bg: var(--nl-blue-deep); --btn-fg: #fff; --btn-fill: var(--nl-blue); --btn-fill-fg: var(--nl-blue-ink);
+  position: relative; isolation: isolate; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 0.85rem;
+  padding: 1rem 1.6rem; min-height: 3.25rem;
+  background: var(--btn-bg); color: var(--btn-fg); border: 1px solid var(--btn-bg);
+  font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1;
+  transition: color 0.4s var(--nl-ease-soft), border-color 0.4s;
+  cursor: pointer; text-decoration: none;
+}
+.nl-btn::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; background: var(--btn-fill);
+  transform: translateY(101%); transition: transform 0.5s var(--nl-ease);
+}
+.nl-btn:hover::before, .nl-btn:focus-visible::before { transform: translateY(0); }
+.nl-btn:hover, .nl-btn:focus-visible { color: var(--btn-fill-fg); border-color: var(--btn-fill); }
+.nl-btn svg { transition: transform 0.4s var(--nl-ease); flex: 0 0 auto; }
+.nl-btn:hover svg { transform: translateX(4px); }
+.nl-btn--ghost { --btn-bg: transparent; --btn-fg: #fff; --btn-fill: var(--nl-blue); --btn-fill-fg: var(--nl-blue-ink); border-color: rgba(255, 255, 255, 0.42); }
+.nl-btn--ink-ghost { --btn-bg: transparent; --btn-fg: var(--nl-ink); --btn-fill: var(--nl-blue); --btn-fill-fg: var(--nl-blue-ink); border-color: rgba(0, 27, 61, 0.28); }
+.nl-btn--light { --btn-bg: #fff; --btn-fg: var(--nl-ink); --btn-fill: var(--nl-blue); --btn-fill-fg: var(--nl-blue-ink); }
+.nl-btn--lg { padding: 1.35rem 2rem; min-height: 4rem; font-size: 0.875rem; }
+.nl-btn--block { width: 100%; }
+.nl-btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+.nl-textlink {
+  display: inline-flex; align-items: center; gap: 0.5rem; color: var(--nl-blue-deep); font-weight: 600;
+  font-size: 0.9375rem; text-decoration: none; background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px; background-repeat: no-repeat; background-position: 0 100%;
+  transition: background-size 0.45s var(--nl-ease);
+}
+.nl-textlink:hover { background-size: 100% 1px; color: var(--nl-blue-ink); }
+.nl-textlink svg { transition: transform 0.4s var(--nl-ease); }
+.nl-textlink:hover svg { transform: translateX(4px); }
+
+/* ---------------- section head (kicker + h2 + lead | 01 / 04) ---------------- */
+.nl-sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; margin-bottom: clamp(2.5rem, 5vw, 4.5rem); }
+.nl-sec-head__left { display: grid; gap: 1.25rem; max-width: 52rem; }
+@media (max-width: 720px) { .nl-sec-head { flex-direction: column; align-items: flex-start; gap: 1rem; } }
+
+/* ---------------- hairline grid cells ---------------- */
+.nl-grid { display: grid; border-top: 1px solid var(--nl-line); border-left: 1px solid var(--nl-line); }
+.nl-cell { border-right: 1px solid var(--nl-line); border-bottom: 1px solid var(--nl-line); background: #fff; transition: background 0.45s var(--nl-ease-soft); }
+.nl-cell:hover { background: var(--nl-blue-mist); }
+.nl-section--paper .nl-cell { background: transparent; }
+.nl-section--paper .nl-cell:hover { background: var(--nl-blue-mist); }
+
+/* ---------------- interactive boxes ----------------
+   Any box with .nl-hoverbox reacts to the cursor: a cyan spotlight follows the pointer
+   (--mx/--my set by RevealObserver), a cyan bar draws across the top, and .nl-hb-lift
+   children lift and turn blue. .nl-hoverbox--dark is the variant for navy sections. */
+.nl-hoverbox { position: relative; isolation: isolate; transition: background-color 0.45s var(--nl-ease-soft); }
+.nl-hoverbox::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(0, 161, 222, 0.16), transparent 70%);
+  transition: opacity 0.4s var(--nl-ease-soft);
+}
+.nl-hoverbox::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px; pointer-events: none;
+  background: var(--nl-blue); transform: scaleX(0); transform-origin: left center; transition: transform 0.6s var(--nl-ease);
+}
+.nl-hoverbox:hover, .nl-hoverbox:focus-within { background-color: var(--nl-blue-mist); }
+.nl-hoverbox:hover::before, .nl-hoverbox:focus-within::before { opacity: 1; }
+.nl-hoverbox:hover::after, .nl-hoverbox:focus-within::after { transform: scaleX(1); }
+.nl-hb-lift { transition: transform 0.5s var(--nl-ease), color 0.35s; }
+.nl-hoverbox:hover .nl-hb-lift, .nl-hoverbox:focus-within .nl-hb-lift { transform: translateY(-3px); color: var(--nl-blue-deep); }
+.nl-hoverbox--dark:hover, .nl-hoverbox--dark:focus-within { background-color: rgba(255, 255, 255, 0.05); }
+.nl-hoverbox--dark::before { background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(0, 161, 222, 0.22), transparent 70%); }
+.nl-hoverbox--dark:hover .nl-hb-lift, .nl-hoverbox--dark:focus-within .nl-hb-lift { color: var(--nl-blue); }
+
+/* ---------------- event rows & cards: photo shows through a translucent navy glass on hover ---------------- */
+.nl-eventrow { position: relative; isolation: isolate; overflow: hidden; }
+.nl-eventrow__bg { position: absolute; inset: 0; z-index: -2; opacity: 0; transform: scale(1.08); transition: opacity 0.6s var(--nl-ease-soft), transform 1.2s var(--nl-ease); }
+.nl-eventrow__bg img { object-fit: cover; }
+.nl-eventrow__glass {
+  position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity 0.6s var(--nl-ease-soft);
+  background: linear-gradient(90deg, rgba(0, 27, 61, 0.86) 0%, rgba(0, 27, 61, 0.62) 55%, rgba(0, 27, 61, 0.35) 100%);
+  backdrop-filter: blur(2px) saturate(1.2);
+}
+.nl-eventrow:hover .nl-eventrow__bg, .nl-eventrow:focus-within .nl-eventrow__bg { opacity: 1; transform: scale(1); }
+.nl-eventrow:hover .nl-eventrow__glass, .nl-eventrow:focus-within .nl-eventrow__glass { opacity: 1; }
+.nl-eventrow .nl-er-text { transition: color 0.45s var(--nl-ease-soft); }
+.nl-eventrow:hover .nl-er-text, .nl-eventrow:focus-within .nl-er-text { color: #fff; }
+.nl-eventrow:hover .nl-er-soft, .nl-eventrow:focus-within .nl-er-soft { color: rgba(255, 255, 255, 0.78); }
+.nl-eventrow:hover .nl-er-accent, .nl-eventrow:focus-within .nl-er-accent { color: var(--nl-blue); }
+@media (hover: none) { .nl-hoverbox::before { display: none; } }
+
+/* ---------------- reveal (P11) ---------------- */
+.nl-reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.85s var(--nl-ease), transform 0.85s var(--nl-ease); transition-delay: var(--d, 0s); }
+.nl-reveal.is-in { opacity: 1; transform: none; }
+.nl-clip { clip-path: inset(0 0 100% 0); transition: clip-path 1.1s var(--nl-ease); transition-delay: var(--d, 0s); }
+.nl-clip.is-in { clip-path: inset(0 0 0% 0); }
+html:not(.js) .nl-reveal, html:not(.js) .nl-clip { opacity: 1; transform: none; clip-path: none; }
+
+/* ---------------- image treatments ---------------- */
+.nl-zoom { overflow: hidden; }
+.nl-zoom img { transition: transform 1.4s var(--nl-ease), filter 1.4s var(--nl-ease); filter: saturate(0.88); }
+.nl-zoom:hover img, .group:hover .nl-zoom img { transform: scale(1.06); filter: saturate(1); }
+
+/* ---------------- forms ---------------- */
+.nl-field { display: grid; gap: 0.45rem; }
+.nl-field label { font-size: 0.8125rem; font-weight: 600; color: var(--nl-ink); }
+.nl-field .hint { font-size: 0.8125rem; color: var(--nl-muted); }
+.nl-input {
+  width: 100%; padding: 0.95rem 1rem; background: #fff; color: var(--nl-ink);
+  border: 1px solid #cfd5dd; border-radius: 0; font: inherit; font-size: 1rem; line-height: 1.4;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.nl-input:hover { border-color: #9aa1ab; }
+.nl-input:focus { outline: none; border-color: var(--nl-blue-deep); box-shadow: 0 0 0 3px rgba(0, 161, 222, 0.2); }
+.nl-input[aria-invalid="true"] { border-color: #b42318; }
+.nl-error { font-size: 0.8125rem; color: #b42318; }
+textarea.nl-input { min-height: 9rem; resize: vertical; }
+.nl-hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+
+/* ---------------- skip link ---------------- */
+.nl-skip { position: absolute; left: 1rem; top: -4rem; z-index: 200; background: var(--nl-ink); color: #fff; padding: 0.75rem 1rem; font-weight: 600; }
+.nl-skip:focus { top: 1rem; }
+
+/* ---------------- reduced motion ---------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  .nl-reveal, .nl-clip { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .nl-zoom img { transform: none !important; }
+}
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+
+/* scroll cue */
+@keyframes nl-cue { 0% { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
