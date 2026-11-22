@@ -122,7 +122,7 @@ export function SiteHeader({ overHero, nav, showGive, logoSrc, logoAlt }: Header
                       id={`menu-${n.label}`}
                       className={`absolute left-1/2 top-full w-[min(30rem,90vw)] -translate-x-1/2 pt-4 transition-[opacity,transform,visibility] duration-300 ease-soft ${isOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0"}`}
                     >
-                      <div className="border border-line bg-white p-2 shadow-[0_24px_60px_-24px_rgba(0,27,61,.35)]">
+                      <div className="border border-line bg-white p-2 shadow-[0_24px_60px_-24px_rgba(11,38,36,.35)]">
                         <p className="px-4 pb-2 pt-3 text-[0.6rem] font-bold uppercase tracking-[0.22em] text-muted">{n.label}</p>
                         <ol>
                           {kids.map((c, i) => (
@@ -156,7 +156,7 @@ export function SiteHeader({ overHero, nav, showGive, logoSrc, logoAlt }: Header
                 <Heart className="h-4 w-4" aria-hidden />Give
               </Link>
             )}
-            <Link href="/visit" className={`nl-btn hidden !min-h-0 !py-3.5 sm:inline-flex ${light ? "nl-btn--ghost" : "nl-btn--ink-ghost"}`}>
+            <Link href="/visit" className={`nl-btn max-sm:!hidden !min-h-0 !py-3.5 whitespace-nowrap ${light ? "nl-btn--ghost" : "nl-btn--ink-ghost"}`}>
               <span>Plan Your Visit</span>
             </Link>
             <button

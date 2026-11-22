@@ -128,12 +128,12 @@ function SectionForm({ s, media }: { s: Section; media: Media[] }) {
                 </div>
                 <div className="grid content-start gap-1.5">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted">Preview</span>
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-[#001b3d] text-white">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-[#0b2624] text-white">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     {m && <img src={m.url} alt="" className="absolute inset-0 h-full w-full object-cover" />}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     {videoOnly && <img src={`https://i.ytimg.com/vi/${sl.video.id}/hqdefault.jpg`} alt="" className="absolute right-2 top-1/2 w-1/2 -translate-y-1/2 border border-white/30" />}
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,27,61,.88)_0%,rgba(0,27,61,.4)_60%,transparent)]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,38,36,.88)_0%,rgba(11,38,36,.4)_60%,transparent)]" />
                     <div className="absolute bottom-2 left-2 right-2 grid gap-0.5">
                       <span className="text-[0.55rem] font-bold uppercase tracking-[0.18em] text-white/70">{String(i + 1).padStart(2, "0")} · {sl.label}</span>
                       <span className="whitespace-pre-line text-sm font-semibold leading-tight">{sl.headline}</span>

@@ -16,7 +16,7 @@ export function F({ label, children, hint, className = "" }: { label: string; ch
 export function Check({ name, label, defaultChecked, hint }: { name: string; label: string; defaultChecked?: boolean; hint?: string }) {
   return (
     <label className="flex items-start gap-2 text-sm">
-      <input type="checkbox" name={name} defaultChecked={defaultChecked} className="mt-0.5 h-4 w-4 accent-[#003f82]" />
+      <input type="checkbox" name={name} defaultChecked={defaultChecked} className="mt-0.5 h-4 w-4 accent-[#163a33]" />
       <span>{label}{hint && <span className="block text-xs text-muted">{hint}</span>}</span>
     </label>
   );
@@ -44,7 +44,7 @@ export function Pill({ status, label }: { status: string; label?: string }) {
 
 /** A summary figure. `tone` keeps the three buckets visually distinct: confirmed money, pledged commitments, pending claims. */
 export function Figure({ label, value, sub, tone = "confirmed", href }: { label: string; value: string; sub?: string; tone?: "confirmed" | "pledged" | "pending" | "neutral"; href?: string }) {
-  const bar = { confirmed: "bg-blue-deep", pledged: "bg-[#00a1de]", pending: "bg-amber-400", neutral: "bg-line" }[tone];
+  const bar = { confirmed: "bg-blue-deep", pledged: "bg-[#d8b879]", pending: "bg-amber-400", neutral: "bg-line" }[tone];
   const inner = (
     <>
       <span className={`absolute inset-y-0 left-0 w-1 rounded-l-lg ${bar}`} aria-hidden />

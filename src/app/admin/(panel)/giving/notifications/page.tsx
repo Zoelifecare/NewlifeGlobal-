@@ -38,7 +38,7 @@ export default async function Notifications({ searchParams }: { searchParams: Pr
                   <legend className="mb-2 text-sm font-medium">Send emails for</legend>
                   {NOTIFY_TYPES.map((t) => (
                     <label key={t.value} className="flex items-start gap-2 text-sm">
-                      <input type="checkbox" name="enabled_types" value={t.value} defaultChecked={enabled.has(t.value)} className="mt-0.5 h-4 w-4 accent-[#003f82]" />
+                      <input type="checkbox" name="enabled_types" value={t.value} defaultChecked={enabled.has(t.value)} className="mt-0.5 h-4 w-4 accent-[#163a33]" />
                       <span>{t.label}{t.hint && <span className="block text-xs text-muted">{t.hint}</span>}</span>
                     </label>
                   ))}

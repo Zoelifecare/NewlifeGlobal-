@@ -43,7 +43,7 @@ export default async function GivePage() {
       />
       <section className="relative isolate overflow-hidden bg-ink py-[clamp(4rem,9vw,7rem)] text-white" id="ways">
         {bg && <Image src={bg.url} alt="" fill sizes="100vw" className="-z-20 object-cover opacity-40" />}
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(120deg,rgba(0,27,61,.94)_0%,rgba(0,63,130,.78)_55%,rgba(0,161,222,.45)_100%)]" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(120deg,rgba(11,38,36,.94)_0%,rgba(22,58,51,.78)_55%,rgba(216,184,121,.45)_100%)]" />
         <div className="nl-container">
           <div className="mb-10 grid gap-4 lg:grid-cols-12 lg:items-end">
             <div className="lg:col-span-7">

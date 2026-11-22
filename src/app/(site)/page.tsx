@@ -116,16 +116,14 @@ export default async function HomePage() {
 
       case "invite-band":
         return (
-          <section key={s.key} className="bg-ink text-white" aria-label={s.kicker ?? "Plan your visit"}>
-            <div className="nl-container grid items-end gap-8 py-[clamp(3.5rem,8vh,5.5rem)] md:grid-cols-[1.15fr_.85fr] md:gap-16">
-              <div className="nl-reveal grid gap-4">
-                {s.kicker && <p className="nl-label nl-label--light">{s.kicker}</p>}
-                <h2 className="max-w-[22ch] text-[clamp(1.9rem,3.4vw,3.1rem)] font-medium leading-[1.08] tracking-tight">{s.title}</h2>
+          <section key={s.key} className="nl-strip" aria-label={s.kicker ?? "Plan your visit"}>
+            <div className="nl-container flex flex-wrap items-center justify-between gap-6 py-8">
+              <div className="nl-reveal grid gap-1">
+                {s.kicker && <p className="nl-strip-label m-0">{s.kicker}</p>}
+                <h2 className="m-0 text-[clamp(1.5rem,2.6vw,2.1rem)] font-extrabold leading-tight tracking-[-0.05em] text-ink">{s.title}</h2>
+                {s.body && <p className="m-0 text-sm text-ink/75">{s.body}</p>}
               </div>
-              <div className="nl-reveal grid justify-items-start gap-5" style={{ ["--d" as string]: ".1s" }}>
-                {s.body && <p className="text-white/70">{s.body}</p>}
-                {s.data.cta && <Link href={s.data.cta.href} className="nl-btn nl-btn--light nl-btn--lg"><span>{s.data.cta.label}</span><LongArrow /></Link>}
-              </div>
+              {s.data.cta && <Link href={s.data.cta.href} className="nl-btn nl-btn--dark"><span>{s.data.cta.label}</span><LongArrow /></Link>}
             </div>
           </section>
         );
@@ -234,9 +232,18 @@ export default async function HomePage() {
       case "invitation": {
         const m = img(s.data.mediaId);
         return (
-          <section key={s.key} className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby="invite-title">
+          <Fragment key={s.key}>
+          {settings.verse?.text && (
+            <section className="nl-quote py-[clamp(4.5rem,10vw,6.5rem)]" aria-label="Scripture">
+              <div className="nl-container nl-reveal">
+                <blockquote>“{settings.verse.text}”</blockquote>
+                <p className="m-0 text-sm font-semibold uppercase tracking-[0.18em] text-[#766d5c]">{settings.verse.ref}</p>
+              </div>
+            </section>
+          )}
+          <section className="relative isolate overflow-hidden bg-ink text-white" aria-labelledby="invite-title">
             {m && <Image src={m.url} alt="" fill sizes="100vw" className="-z-10 object-cover opacity-45" />}
-            <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(0,27,61,.95),rgba(0,27,61,.35))]" />
+            <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(11,38,36,.95),rgba(11,38,36,.35))]" />
             <div className="nl-container grid justify-items-center gap-7 py-[clamp(6rem,16vh,10rem)] text-center">
               {s.kicker && <p className="nl-label nl-label--light nl-label--plain">{s.kicker}</p>}
               <h2 id="invite-title" className="nl-reveal max-w-[16ch] text-[clamp(2.4rem,5.2vw,5rem)] font-medium leading-none tracking-tight">{s.title}</h2>
@@ -248,6 +255,7 @@ export default async function HomePage() {
               <p className="flex items-center gap-2 text-sm text-white/65"><MapPin className="h-4 w-4" aria-hidden />{settings.address.line1}, {settings.address.city}, {settings.address.region} · <Calendar className="h-4 w-4" aria-hidden /> Sundays 3:00 PM</p>
             </div>
           </section>
+          </Fragment>
         );
       }
       default:

@@ -18,6 +18,7 @@ export interface HeroSlideView {
 }
 
 const DURATION = 7000;
+const NL = String.fromCharCode(10); // headline line break; lines after the first are shown in gold
 
 /**
  * ai.gov.rw P2 — full-bleed slider of three numbered chapters with
@@ -95,7 +96,7 @@ export function HeroSlider({
         >
           {!s.image && s.video && (
             <Image src={`https://i.ytimg.com/vi/${s.video.id}/maxresdefault.jpg`} alt="" fill sizes="100vw" priority={i === 0}
-              className="scale-110 object-cover opacity-70 blur-[6px]" />
+              className="scale-110 object-cover opacity-35 blur-[10px]" />
           )}
           {s.image && (
             <Image
@@ -107,18 +108,18 @@ export function HeroSlider({
               className={`object-cover transition-transform ease-linear ${i === active ? "scale-[1.08] duration-[7000ms]" : "scale-100 duration-0"} motion-reduce:!scale-100`}
             />
           )}
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,27,61,.88)_0%,rgba(0,27,61,.55)_45%,rgba(0,27,61,.15)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,rgba(0,27,61,.9),transparent)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,38,36,.88)_0%,rgba(11,38,36,.55)_45%,rgba(11,38,36,.15)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,rgba(11,38,36,.9),transparent)]" />
         </div>
       ))}
 
       {/* content */}
       <div className="nl-container flex flex-1 flex-col justify-end pb-10 pt-[calc(var(--nl-header-h)+3rem)] md:justify-center md:pb-0">
         <div key={slide.index} className={`max-w-[58rem] ${slide.video ? "lg:max-w-[46%]" : ""}`} aria-live="polite">
-          <p className="nl-label nl-label--light mb-6 animate-[fadeUp_.9s_var(--nl-ease)_both]">
+          <p className="nl-label nl-label--light nl-label--plain nl-pill-eyebrow mb-6 animate-[fadeUp_.9s_var(--nl-ease)_both]">
             {slide.index} · {slide.label}
           </p>
-          <h1 className="nl-display whitespace-pre-line animate-[fadeUp_1s_var(--nl-ease)_.05s_both]">{slide.headline}</h1>
+          <h1 className="nl-display whitespace-pre-line animate-[fadeUp_1s_var(--nl-ease)_.05s_both]">{(() => { const [first, ...rest] = slide.headline.split(NL); return <>{first}{rest.length > 0 && <>{NL}<span className="text-[#e2c58e]">{rest.join(NL)}</span></>}</>; })()}</h1>
           <p className="mt-6 max-w-[38rem] text-[1.05rem] leading-relaxed text-white/85 md:text-[1.15rem] animate-[fadeUp_1s_var(--nl-ease)_.15s_both]">
             {slide.body}
           </p>
@@ -148,7 +149,7 @@ export function HeroSlider({
           </div>
         )}
         <div className="mt-9 grid max-w-[44rem] gap-3 sm:grid-cols-2 sm:gap-0">
-          <Link href={primary.href} className="nl-btn nl-btn--lg !justify-between !bg-blue-deep sm:!py-7">
+          <Link href={primary.href} className="nl-btn nl-btn--lg !justify-between sm:!py-7">
             <span>{primary.label}</span>
             <LongArrow />
           </Link>

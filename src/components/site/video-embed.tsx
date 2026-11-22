@@ -22,7 +22,7 @@ export function VideoEmbed({ videoId, title, thumbnail }: { videoId: string; tit
   return (
     <button type="button" onClick={() => setOn(true)} className="group relative block aspect-video w-full overflow-hidden bg-ink text-left" aria-label={`Play video: ${title}`}>
       <Image src={thumbnail ?? `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`} alt="" fill sizes="(min-width:1024px) 66vw, 100vw" className="object-cover opacity-85 transition-transform duration-[1400ms] ease-out-expo group-hover:scale-105" priority />
-      <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,27,61,.7),transparent_60%)]" />
+      <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(11,38,36,.7),transparent_60%)]" />
       <span className="absolute bottom-6 left-6 flex items-center gap-4 text-white">
         <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-blue-deep transition-transform duration-500 ease-out-expo group-hover:scale-110">
           <Play className="ml-1 h-6 w-6 fill-current" aria-hidden />

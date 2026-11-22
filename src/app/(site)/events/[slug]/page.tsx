@@ -38,7 +38,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         {e.image && (
           <div className="absolute inset-0 -z-10" aria-hidden>
             <Image src={e.image.url} alt="" fill priority sizes="100vw" className="scale-110 object-cover opacity-60 blur-2xl" />
-            <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(0,27,61,.94)_0%,rgba(0,27,61,.78)_50%,rgba(0,27,61,.45)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(11,38,36,.94)_0%,rgba(11,38,36,.78)_50%,rgba(11,38,36,.45)_100%)]" />
           </div>
         )}
         <div className="nl-container">

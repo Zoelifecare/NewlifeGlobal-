@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Newsreader } from "next/font/google";
+import { DM_Sans, Manrope, Newsreader } from "next/font/google";
 import { getSettings } from "@/lib/content";
 import { siteUrl } from "@/lib/site-url";
 import { AuthHashHandler } from "@/components/auth-hash-handler";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm", display: "swap" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", weight: ["500", "600", "700", "800"], display: "swap" });
 const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader", style: ["italic", "normal"], display: "swap" });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,11 +23,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: "#001b3d", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#0b2624", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${newsreader.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${dmSans.variable} ${manrope.variable} ${newsreader.variable}`} suppressHydrationWarning>
       <head>
         {/* marks JS-enabled browsers so reveal animations never hide content without JS */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />

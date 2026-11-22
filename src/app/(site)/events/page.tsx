@@ -51,8 +51,8 @@ export default async function EventsPage() {
                   {/* photo stays in front; on hover a translucent navy glass rises with the details */}
                   <Link href={`/events/${e.slug}`} className="group relative block aspect-[4/3] overflow-hidden bg-ink">
                     {e.image && <Image src={e.image.url} alt={e.image.alt} fill sizes="(min-width:1280px) 30vw, (min-width:768px) 45vw, 100vw" className="object-cover transition-transform duration-[1400ms] ease-out-expo group-hover:scale-105" />}
-                    <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,27,61,.85),rgba(0,27,61,.05)_55%)] transition-opacity duration-500 group-hover:opacity-0" aria-hidden />
-                    <span className="absolute inset-0 bg-[rgba(0,27,61,.55)] opacity-0 backdrop-blur-[3px] transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden />
+                    <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(11,38,36,.85),rgba(11,38,36,.05)_55%)] transition-opacity duration-500 group-hover:opacity-0" aria-hidden />
+                    <span className="absolute inset-0 bg-[rgba(11,38,36,.55)] opacity-0 backdrop-blur-[3px] transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden />
                     <span className="absolute inset-x-0 bottom-0 grid gap-2 p-6 text-white">
                       <span className="text-xs font-bold uppercase tracking-[0.14em] text-blue">{formatEventDateLong(e.startsAt)}</span>
                       <span className="text-[1.35rem] font-medium leading-snug tracking-tight">{e.title}</span>
