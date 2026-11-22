@@ -14,6 +14,7 @@ import type {
 
 const AZ = "-07:00"; // Arizona (no DST)
 const yt = (id: string) => `https://www.youtube.com/watch?v=${id}`;
+const MAPS = "https://www.google.com/maps/search/?api=1&query=800+W+Galveston+St+Chandler+AZ+85225";
 const ytThumb = (id: string) => `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
 
 // ------------------------------------------------------------------ media (owner approved, @newlifeglobalaz)
@@ -82,21 +83,21 @@ export const seedSettings: SiteSettings = {
         { label: "Leadership", href: "/about#leadership", visible: true, description: "Meet our pastors" },
       ],
     },
+    {
+      label: "I'm New", href: "/visit", visible: true, children: [
+        { label: "Plan Your Visit", href: "/visit", visible: true, description: "Times, location and what to expect" },
+        { label: "Events", href: "/events", visible: true, description: "Gatherings and celebrations" },
+        { label: "Prayer Requests", href: "/prayer", visible: true, description: "Share a request in confidence" },
+      ],
+    },
     { label: "Ministries", href: "/ministries", visible: true },
     {
-      label: "Media", href: "/messages", visible: true, children: [
+      label: "Messages", href: "/messages", visible: true, children: [
         { label: "Messages", href: "/messages", visible: true, description: "Watch sermons" },
         { label: "Gallery", href: "/gallery", visible: true, description: "Life together in pictures" },
       ],
     },
-    { label: "Events", href: "/events", visible: true },
-    {
-      label: "Connect", href: "/visit", visible: true, children: [
-        { label: "Plan Your Visit", href: "/visit", visible: true, description: "Times, location and what to expect" },
-        { label: "Prayer Requests", href: "/prayer", visible: true, description: "Share a request in confidence" },
-        { label: "Contact", href: "/contact", visible: true, description: "Send us a message" },
-      ],
-    },
+    { label: "Contact", href: "/contact", visible: true },
   ],
   pages: { about: true, ministries: true, messages: true, events: true, gallery: true, prayer: true, visit: true, contact: true, give: true },
   visitFaq: [
@@ -301,13 +302,13 @@ export const seedHomepage: HomepageSection[] = [
     key: "hero", kicker: null, title: null, body: null, sortOrder: 1, isVisible: true,
     data: {
       primaryCta: { label: "Plan Your Visit", href: "/visit" },
-      secondaryCta: { label: "Explore New Life", href: "#chapters" },
+      secondaryCta: { label: "Discover Our Church", href: "#about" },
       // Order requested by the owner: Pastor Charles preaching first, then the worship team, then other church life.
       // MISSING ASSET: no clean photo of Pastor Charles preaching is in the media library yet (the sermon
       // thumbnails carry title text, and the Instagram preaching photo is of Pastor Fred Katagwa), so slide 01
       // features his published sermon as a video card until an approved photo is uploaded.
       slides: [
-        { label: "The Word", caption: "Pastor Charles Mugisha", headline: "Hear the Word.\nLive it out.", body: "Messages from Pastor Charles Mugisha. Join us every Sunday at 3:00 PM in Chandler, Arizona.", mediaId: null, alt: "", featured: true,
+        { label: "One church. One family. One hope.", caption: "Welcome home", headline: "You belong\nhere.", body: "A Church Where the Community Is Looking for You. Find your people, grow in faith, and experience the love of Jesus.", mediaId: null, alt: "", featured: true,
           video: { id: "tsNcq0xw4pU", title: "The Development Stages of Marriage", href: "/messages/the-development-stages-of-marriage" },
           assetNote: "Needs an approved photo of Pastor Charles Mugisha preaching. Upload it in Media and choose it here." },
         { label: "Faith & Worship", caption: "Our worship team", headline: "A place of love.\nA family of faith.", body: "We worship God in a lively and heartfelt atmosphere. Come worship with us every Sunday at 3:00 PM.", mediaId: "ig-rw-05", alt: "The New Life Global worship team leading worship", featured: true },
@@ -317,7 +318,7 @@ export const seedHomepage: HomepageSection[] = [
     },
   },
   {
-    key: "stats", kicker: null, title: null, body: null, sortOrder: 2, isVisible: true,
+    key: "stats", kicker: null, title: null, body: null, sortOrder: 20, isVisible: false,
     data: {
       items: [
         { value: "3 PM", label: "Every Sunday in Chandler, AZ" },
@@ -328,7 +329,7 @@ export const seedHomepage: HomepageSection[] = [
     },
   },
   {
-    key: "chapters", kicker: "Who We Are", title: "Three chapters. One story of new life.", sortOrder: 3, isVisible: true,
+    key: "chapters", kicker: "Who We Are", title: "Three chapters. One story of new life.", sortOrder: 21, isVisible: false,
     body: "New Life Global is a young church in Chandler, Arizona. Here is who we are, in three chapters.",
     data: {
       chapters: [
@@ -339,11 +340,57 @@ export const seedHomepage: HomepageSection[] = [
     },
   },
   {
-    key: "invite-band", kicker: "Plan your visit", title: "There's a seat saved just for you.", body: "Sundays at 3:00 PM · 800 W Galveston St, Chandler, AZ", sortOrder: 4, isVisible: true,
-    data: { cta: { label: "Plan Your Visit", href: "/visit" } },
+    key: "invite-band", kicker: "Your Sunday invitation", title: "There's a seat waiting for you.", body: "Every Sunday at 3:00 PM · Chandler, Arizona", sortOrder: 2, isVisible: true,
+    data: { cta: { label: "Get Directions", href: MAPS } },
   },
   {
-    key: "discover", kicker: "Discover New Life", title: "Find your way in.", body: "Seven pathways into the life of our church.", sortOrder: 5, isVisible: true,
+    key: "about-split", kicker: "More than a Sunday service", title: "New life. Real people. Lasting hope.", sortOrder: 3, isVisible: true,
+    body: "New Life Global is a Christ-centered church in Chandler, Arizona, where people from every background can belong, encounter Jesus, and grow together. We believe the church is more than a place you attend; it's a family where you are known, loved, and encouraged.\n\nWhether you're exploring faith or looking for a church home, there's a place for you here.",
+    data: { mediaId: "ig-church-family", cta: { label: "Connect With Us", href: "/contact" } },
+  },
+  {
+    key: "visit-split", kicker: "Come as you are", title: "Come experience New Life Global.", sortOrder: 4, isVisible: true,
+    body: "We would love to welcome you and your family. Expect worship, biblical teaching, prayer, and a friendly community ready to meet you.",
+    data: {
+      mediaId: "ig-fellowship",
+      details: [
+        { icon: "clock", title: "Sunday Service", text: "Every Sunday at 3:00 PM" },
+        { icon: "pin", title: "Where We Meet", text: "Bethel SonRise Campus\n800 W Galveston St\nChandler, AZ 85225" },
+      ],
+      primary: { label: "Get Directions", href: MAPS },
+      secondary: { label: "Let Us Know You're Coming", href: "/visit" },
+    },
+  },
+  {
+    key: "connect", kicker: "Get connected", title: "Life is better together.", body: "There is a place to connect, serve, and grow in every season of life.", sortOrder: 5, isVisible: true,
+    data: {
+      items: [
+        { icon: "sparkles", title: "Worship & Prayer", text: "Gather to worship Jesus, seek God in prayer, and encourage one another.", href: "/ministries/worship" },
+        { icon: "heart", title: "Families & Community", text: "Build authentic relationships and find a spiritual family that walks with you.", href: "/ministries" },
+        { icon: "star", title: "Next Generation", text: "Helping children and young people discover faith, purpose, and belonging.", href: "/ministries/children" },
+      ],
+    },
+  },
+  {
+    key: "quote", kicker: null, title: "Therefore, if anyone is in Christ, the new creation has come.", body: "2 Corinthians 5:17 · NIV", sortOrder: 6, isVisible: true, data: {},
+  },
+  {
+    key: "messages-tiles", kicker: "Faith for everyday life", title: "Messages that inspire life.", sortOrder: 7, isVisible: true,
+    body: "Come hear practical, Christ-centered biblical teaching that encourages you to follow Jesus in everyday life.",
+    data: { cta: { label: "Watch Our Messages", href: "/messages" } },
+  },
+  {
+    key: "give-band", kicker: "Live generously", title: "Generosity changes lives.", sortOrder: 8, isVisible: true,
+    body: "Your generosity can help share the love of Christ, strengthen our church family, and serve our community.",
+    data: { cta: { label: "Give Now", href: "/give" } },
+  },
+  {
+    key: "contact", kicker: "We're here for you", title: "We'd love to hear from you.", sortOrder: 9, isVisible: true,
+    body: "Have a question, need prayer, or planning your first visit? Reach out to our church family.",
+    data: { venue: "Bethel SonRise Campus" },
+  },
+  {
+    key: "discover", kicker: "Discover New Life", title: "Find your way in.", body: "Seven pathways into the life of our church.", sortOrder: 22, isVisible: false,
     data: {
       items: [
         { title: "About Us", text: "Who we are, what we believe and who leads us.", href: "/about" },
@@ -357,18 +404,18 @@ export const seedHomepage: HomepageSection[] = [
     },
   },
   {
-    key: "pathways", kicker: "Messages & Gatherings", title: "Hear the Word. Gather with us.", body: "A recent message and what's coming up in Chandler.", sortOrder: 6, isVisible: true,
+    key: "pathways", kicker: "Messages & Gatherings", title: "Hear the Word. Gather with us.", body: "A recent message and what's coming up in Chandler.", sortOrder: 23, isVisible: false,
     data: { eventMediaId: "ig-anniversary" },
   },
   {
-    key: "ministries", kicker: "Ministries", title: "A place for everyone to belong.", body: null, sortOrder: 7, isVisible: true, data: {},
+    key: "ministries", kicker: "Ministries", title: "A place for everyone to belong.", body: null, sortOrder: 24, isVisible: false, data: {},
   },
   {
-    key: "testimonies", kicker: "Stories", title: "What God is doing among us.", body: null, sortOrder: 9, isVisible: false,
+    key: "testimonies", kicker: "Stories", title: "What God is doing among us.", body: null, sortOrder: 25, isVisible: false,
     data: { items: [], note: "Only approved testimonies with written consent." },
   },
   {
-    key: "invitation", kicker: "Come home", title: "Come and experience new life.", sortOrder: 10, isVisible: true,
+    key: "invitation", kicker: "Come home", title: "Come and experience new life.", sortOrder: 26, isVisible: false,
     body: "Whoever you are and wherever you're from, you are welcome at New Life Global.",
     data: { mediaId: "ig-rw-07", cta: { label: "Plan Your Visit", href: "/visit" }, secondary: { label: "Contact us", href: "/contact" } },
   },

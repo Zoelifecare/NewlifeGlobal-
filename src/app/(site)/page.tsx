@@ -10,6 +10,7 @@ import { SectionHead } from "@/components/site/section-head";
 import { CountUp } from "@/components/site/count-up";
 import { HoverVideo } from "@/components/site/hover-video";
 import { LongArrow } from "@/components/site/icons";
+import { AboutSplit, ContactBlock, ConnectCards, GiveBand, MessageTiles, QuoteBand, VisitSplit } from "@/components/site/home-sections";
 import { formatEventDate } from "@/lib/format";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -258,6 +259,20 @@ export default async function HomePage() {
           </Fragment>
         );
       }
+      case "about-split":
+        return <AboutSplit key={s.key} s={s} image={img(s.data.mediaId)} />;
+      case "visit-split":
+        return <VisitSplit key={s.key} s={s} image={img(s.data.mediaId)} />;
+      case "connect":
+        return <ConnectCards key={s.key} s={s} />;
+      case "quote":
+        return <QuoteBand key={s.key} s={s} />;
+      case "messages-tiles":
+        return <MessageTiles key={s.key} s={s} sermons={sermons} />;
+      case "give-band":
+        return <GiveBand key={s.key} s={s} />;
+      case "contact":
+        return <ContactBlock key={s.key} s={s} settings={settings} />;
       default:
         return null;
     }

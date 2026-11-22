@@ -21,7 +21,7 @@ before(async () => {
 test("seed loaded: settings, homepage, ministries, sermons, events, gallery", async () => {
   const c = async (t) => (await db.query(`select count(*)::int n from public.${t}`)).rows[0].n;
   assert.ok(await c("site_settings") >= 10);
-  assert.equal(await c("homepage_sections"), 9);
+  assert.equal(await c("homepage_sections"), 16);
   assert.equal(await c("ministries"), 5);
   assert.equal(await c("sermons"), 5);
   assert.equal(await c("church_content"), 10);

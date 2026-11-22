@@ -13,7 +13,7 @@ interface Section { key: string; kicker: string | null; title: string | null; bo
 const NAMES: Record<string, string> = {
   hero: "Hero slider", stats: "Stats strip", chapters: "Three chapters (01 / 02 / 03)", "invite-band": "Visit invitation band",
   discover: "Discover New Life pathways", pathways: "Featured message & event", ministries: "Ministry highlights",
-  global: "Rwanda & global connection", testimonies: "Testimonies", invitation: "Final invitation",
+  global: "Rwanda & global connection", testimonies: "Testimonies", invitation: "Final invitation", "about-split": "About: New life. Real people.", "visit-split": "Visit: Come as you are", connect: "Get connected cards", quote: "Scripture band", "messages-tiles": "Messages tiles", "give-band": "Giving band", contact: "Contact form and map",
 };
 
 export function HomepageEditor({ sections, media }: { sections: Section[]; media: Media[] }) {
