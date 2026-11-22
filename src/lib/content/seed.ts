@@ -346,7 +346,7 @@ export const seedHomepage: HomepageSection[] = [
   {
     key: "about-split", kicker: "More than a Sunday service", title: "New life. Real people. Lasting hope.", sortOrder: 3, isVisible: true,
     body: "New Life Global is a Christ-centered church in Chandler, Arizona, where people from every background can belong, encounter Jesus, and grow together. We believe the church is more than a place you attend; it's a family where you are known, loved, and encouraged.\n\nWhether you're exploring faith or looking for a church home, there's a place for you here.",
-    data: { mediaId: "ig-church-family", cta: { label: "Connect With Us", href: "/contact" } },
+    data: { mediaId: "ig-rw-08", cta: { label: "Connect With Us", href: "/contact" } },
   },
   {
     key: "visit-split", kicker: "Come as you are", title: "Come experience New Life Global.", sortOrder: 4, isVisible: true,
