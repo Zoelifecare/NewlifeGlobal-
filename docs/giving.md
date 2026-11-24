@@ -18,8 +18,8 @@ How people give to New Life Global, and how the finance team keeps track.
 | Use | Link |
 |---|---|
 | Card form only (best for flyers, texts, WhatsApp) | https://www.zeffy.com/en-US/donation-form/give-to-new-life-global |
-| Give page with the card popup already open | https://newlifeglobal.vercel.app/give#card |
-| Full Give page (all methods) | https://newlifeglobal.vercel.app/give |
+| Give page with the card popup already open | https://app.newlifeglobalaz.org/give#card |
+| Full Give page (all methods) | https://app.newlifeglobalaz.org/give |
 
 The QR codes in `public/media/giving/` (`give-qr.png`, `give-qr.svg`, and the flyer graphic `give-flyer-qr.png`) open the **Zeffy form directly**, so printed flyers keep working even if the website's address changes.
 

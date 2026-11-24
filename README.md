@@ -1,7 +1,7 @@
 # New Life Global: Website & Church Admin
 
 The official website and church-management platform for **New Life Global**, a church in Chandler, Arizona.
-Live site: **https://newlifeglobal.vercel.app** (moving to **newlifeglobalaz.org**).
+Live site: **https://app.newlifeglobalaz.org** (also at newlifeglobal.vercel.app; the main newlifeglobalaz.org stays on WordPress).
 
 It has two parts:
 
