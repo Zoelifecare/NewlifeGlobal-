@@ -137,7 +137,83 @@ function CopyText({ text }: { text: string }) {
   );
 }
 
-function MethodDetails({ m }: { m: PaymentMethodPublic }) {
+/* ------------------------------------------------------------------ open the app / bank */
+/** Official sites of common US banks. On phones, many of these open the bank's installed app. */
+const BANKS: { name: string; url: string }[] = [
+  { name: "Chase", url: "https://www.chase.com" },
+  { name: "Bank of America", url: "https://www.bankofamerica.com" },
+  { name: "Wells Fargo", url: "https://www.wellsfargo.com" },
+  { name: "Citi", url: "https://www.citi.com" },
+  { name: "Capital One", url: "https://www.capitalone.com" },
+  { name: "U.S. Bank", url: "https://www.usbank.com" },
+  { name: "PNC", url: "https://www.pnc.com" },
+  { name: "Truist", url: "https://www.truist.com" },
+  { name: "Navy Federal", url: "https://www.navyfederal.org" },
+  { name: "USAA", url: "https://www.usaa.com" },
+  { name: "Desert Financial", url: "https://www.desertfinancial.com" },
+  { name: "OneAZ Credit Union", url: "https://www.oneazcu.com" },
+];
+
+/** Cash App: https://cash.app/$tag[/amount] opens the app when installed, otherwise Cash App on the web. */
+export function cashAppUrl(handle: string, amount?: string) {
+  const tag = handle.trim().replace(/^\$?/, "$").replace(/\s+/g, "");
+  const n = Number(amount);
+  return `https://cash.app/${encodeURIComponent(tag).replace("%24", "$")}${Number.isFinite(n) && n >= 1 ? `/${n}` : ""}`;
+}
+
+function BankPicker({ title, note }: { title: string; note: string }) {
+  return (
+    <div className="grid gap-3 border border-line bg-paper p-4">
+      <p className="m-0 text-sm font-semibold text-ink">{title}</p>
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {BANKS.map((b) => (
+          <li key={b.name}>
+            <a href={b.url} target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-between gap-2 border border-line bg-white px-3 py-2.5 text-sm font-medium text-ink transition-colors hover:border-blue-deep">
+              {b.name}<ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p className="m-0 text-xs text-muted">{note}</p>
+    </div>
+  );
+}
+
+function PayActions({ m, amount }: { m: PaymentMethodPublic; amount?: string }) {
+  const [banks, setBanks] = useState(false);
+  if (m.kind === "cashapp" && m.handle) {
+    return (
+      <a href={cashAppUrl(m.handle, amount)} target="_blank" rel="noopener noreferrer" className="nl-btn w-fit">
+        <span>Open Cash App{Number(amount) >= 1 ? ` · $${Number(amount)}` : ""}</span><ArrowUpRight className="h-4 w-4" aria-hidden />
+      </a>
+    );
+  }
+  if (m.kind === "zelle" && m.handle) {
+    return (
+      <div className="grid gap-3">
+        <button type="button" className="nl-btn w-fit"
+          onClick={() => { navigator.clipboard?.writeText(m.handle!).catch(() => {}); setBanks((v) => !v); }}>
+          <span>Pay with Zelle in my bank app</span><ArrowRight className="h-4 w-4" aria-hidden />
+        </button>
+        {banks && <BankPicker title={`We copied ${m.handle}. Choose your bank, open Zelle and paste it as the recipient.`} note="Zelle lives inside your bank's app. This opens your bank's official site or app; we never see your banking details." />}
+      </div>
+    );
+  }
+  if (m.kind === "bank_transfer") {
+    return (
+      <div className="grid gap-3">
+        <button type="button" className="nl-btn w-fit" onClick={() => setBanks((v) => !v)}>
+          <span>Choose my bank</span><ArrowRight className="h-4 w-4" aria-hidden />
+        </button>
+        {banks && <BankPicker title="Choose your bank to sign in and send the transfer using the details above." note="Opens your bank's official site or app in a new tab. You can also transfer manually at your branch. We never see your banking details." />}
+      </div>
+    );
+  }
+  return null;
+}
+
+function MethodDetails({ m, amount }: { m: PaymentMethodPublic; amount?: string }) {
   return (
     <div className="grid gap-3">
       {m.description && <p className="m-0 text-body">{m.description}</p>}
@@ -151,6 +227,7 @@ function MethodDetails({ m }: { m: PaymentMethodPublic }) {
       {m.location && <p className="m-0"><strong className="text-ink">Where: </strong>{m.location}</p>}
       {m.instructions && <p className="m-0 whitespace-pre-line text-body">{m.instructions}</p>}
       {m.referenceInfo && <p className="m-0 text-sm text-muted">{m.referenceInfo}</p>}
+      <PayActions m={m} amount={amount} />
     </div>
   );
 }
@@ -258,7 +335,7 @@ function GiveNow({ catalog }: { catalog: GivingCatalog }) {
           )}
           {method && method.kind !== "online_link" && (
             <div className="grid gap-6">
-              <MethodDetails m={method} />
+              <MethodDetails m={method} amount={amount} />
               <div className="border-t border-line pt-6">
                 <p className="mb-4 text-sm text-body">After you send your gift, let us know so our finance team can confirm it.</p>
                 <ConfirmForm method={method} catalog={catalog} presetAmount={amount} designation={designation} />
@@ -406,7 +483,11 @@ export function GivingExperience({ catalog }: { catalog: GivingCatalog }) {
                 <span className="text-xs font-bold uppercase tracking-[0.16em] text-white/70">Give by {m.label}</span>
                 <span className="nl-num truncate text-xl font-medium text-white">{m.handle ?? "Number coming soon"}</span>
               </span>
-              {m.handle && <span className="ml-auto [&_button]:!text-blue"><CopyText text={m.handle} /></span>}
+              {m.handle && m.kind === "cashapp" ? (
+                <a href={cashAppUrl(m.handle)} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-blue hover:text-white">
+                  Open<ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                </a>
+              ) : m.handle ? <span className="ml-auto [&_button]:!text-blue"><CopyText text={m.handle} /></span> : null}
             </div>
           ))}
           <button type="button" onClick={() => choose("pledge")} className="nl-hoverbox flex items-center gap-4 border border-white/20 bg-white/10 p-5 text-left backdrop-blur-md transition-colors hover:bg-white/20">
