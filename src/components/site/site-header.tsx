@@ -152,8 +152,8 @@ export function SiteHeader({ overHero, nav, showGive, logoSrc, logoAlt }: Header
           </nav>
           <div className="flex items-center gap-2">
             {showGive && (
-              <Link href="/give" className={`hidden items-center gap-2 px-3 py-2 text-[0.8rem] font-bold uppercase tracking-[0.12em] transition-colors sm:inline-flex ${light ? "text-white hover:text-blue" : "text-blue-deep hover:text-blue"}`}>
-                <Heart className="h-4 w-4" aria-hidden />Give
+              <Link href="/give" className="nl-give-btn" aria-label="Give to New Life Global">
+                <Heart className="h-4 w-4 fill-current" aria-hidden /><span>Give</span>
               </Link>
             )}
             <Link href="/visit" className={`nl-btn max-sm:!hidden !min-h-0 !py-3.5 whitespace-nowrap ${light ? "nl-btn--ghost" : "nl-btn--ink-ghost"}`}>

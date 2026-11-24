@@ -265,3 +265,26 @@ textarea.nl-input { min-height: 9rem; resize: vertical; }
 .nl-section--ink { background: #102f29; }
 
 html, body { overflow-x: clip; }
+
+/* Give button: gold pill with a soft glow pulse and a light sweep (stops for reduced motion). */
+.nl-give-btn {
+  position: relative; isolation: isolate; overflow: hidden; display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.72rem 1.15rem; border-radius: 999px; white-space: nowrap;
+  background: linear-gradient(135deg, #f3dfb1 0%, #d8b879 48%, #b8955a 100%); color: #0b2624;
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
+  animation: nl-give-pulse 2.6s ease-out infinite; transition: transform 0.2s, filter 0.2s;
+}
+.nl-give-btn::after {
+  content: ""; position: absolute; top: -50%; bottom: -50%; left: -60%; width: 38%; z-index: -1;
+  transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  animation: nl-give-shine 3.2s ease-in-out infinite;
+}
+.nl-give-btn:hover { transform: translateY(-1px) scale(1.03); filter: brightness(1.05); }
+.nl-give-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@keyframes nl-give-shine { 0%, 55% { left: -60%; } 100% { left: 130%; } }
+@keyframes nl-give-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(216, 184, 121, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(216, 184, 121, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(216, 184, 121, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .nl-give-btn, .nl-give-btn::after { animation: none; } }

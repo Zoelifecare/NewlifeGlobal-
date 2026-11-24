@@ -151,6 +151,9 @@ export async function savePaymentMethod(id: string | null, _p: ActionResult | nu
   if (!label || label.length < 2) return fail("Enter a label.");
   const url = str(fd, "url", 500);
   if (url && !/^https:\/\/[^\s]+$/.test(url)) return fail("Links must start with https://");
+  if (kind === "online_link" && url && !/^https:\/\/(www\.)?zeffy\.com\//.test(url)) {
+    return fail("For security, the card giving link must be the church's Zeffy form (https://www.zeffy.com/...).");
+  }
   const active = bool(fd, "is_active");
   if (active && kind === "online_link" && !url) return fail("An online giving method needs its secure https link before it can be shown.");
   if (active && (kind === "zelle" || kind === "cashapp") && !str(fd, "handle")) return fail("Add the Zelle recipient or $Cashtag the church has approved before showing this method.");
