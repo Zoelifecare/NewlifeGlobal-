@@ -3,6 +3,7 @@ import { FORM_SCHEMAS, antiSpam, type FormKind, type FormResult } from "@/lib/va
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import { MIN_FILL_MS, allowRequest, clientKey } from "@/lib/security/rate-limit";
+import { corsHeaders, originAllowed, preflight } from "@/lib/security/cors";
 
 const LIMITS: Record<FormKind, [number, number]> = {
   prayer: [5, 600], contact: [5, 600], visit: [5, 600], newsletter: [5, 3600],
@@ -15,50 +16,55 @@ const SUCCESS: Record<FormKind, string> = {
   newsletter: "You're subscribed. Thank you!",
 };
 
-const json = (body: FormResult, status = 200) => NextResponse.json(body, { status });
+const json = (body: FormResult, status = 200, headers: Record<string, string> = {}) => NextResponse.json(body, { status, headers });
+
+export function OPTIONS(req: NextRequest) {
+  return preflight(req);
+}
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ kind: string }> }) {
+  const reply = (b: Parameters<typeof json>[0], status = 200) => json(b, status, corsHeaders(req));
   const { kind } = await ctx.params;
-  if (!(kind in FORM_SCHEMAS)) return json({ ok: false, message: "Unknown form." }, 404);
+  if (!(kind in FORM_SCHEMAS)) return reply({ ok: false, message: "Unknown form." }, 404);
   const k = kind as FormKind;
 
   // same-origin check (defence against cross-site form posts)
-  const origin = req.headers.get("origin");
-  if (origin && new URL(origin).host !== req.headers.get("host")) return json({ ok: false, message: "Invalid origin." }, 403);
+  // same-origin, or the church's public website (see lib/security/cors.ts)
+  if (!originAllowed(req)) return reply({ ok: false, message: "Invalid origin." }, 403);
 
   let body: Record<string, unknown>;
   try {
     body = await req.json();
   } catch {
-    return json({ ok: false, message: "Invalid request." }, 400);
+    return reply({ ok: false, message: "Invalid request." }, 400);
   }
 
   const spam = antiSpam.safeParse(body);
   if (!spam.success || Date.now() - spam.data.startedAt < MIN_FILL_MS) {
     // Respond like a success so bots learn nothing; nothing is stored.
-    return json({ ok: true, message: SUCCESS[k] });
+    return reply({ ok: true, message: SUCCESS[k] });
   }
 
   const parsed = FORM_SCHEMAS[k].safeParse(body);
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
     for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0])] ??= issue.message;
-    return json({ ok: false, message: "Please check the highlighted fields.", fieldErrors }, 422);
+    return reply({ ok: false, message: "Please check the highlighted fields.", fieldErrors }, 422);
   }
 
   if (!isSupabaseConfigured) {
-    return json({ ok: false, message: "The website database is not connected yet, so this form cannot be saved. Please try again later." }, 503);
+    return reply({ ok: false, message: "The website database is not connected yet, so this form cannot be saved. Please try again later." }, 503);
   }
 
   const db = createSupabaseAnonClient();
   try {
     const [max, windowS] = LIMITS[k];
     if (!(await allowRequest(db, clientKey(req.headers, k), max, windowS))) {
-      return json({ ok: false, message: "Too many submissions. Please wait a few minutes and try again." }, 429);
+      return reply({ ok: false, message: "Too many submissions. Please wait a few minutes and try again." }, 429);
     }
   } catch (e) {
     console.error(e);
-    return json({ ok: false, message: "Something went wrong. Please try again." }, 500);
+    return reply({ ok: false, message: "Something went wrong. Please try again." }, 500);
   }
 
   const v = parsed.data as Record<string, unknown>;
@@ -77,7 +83,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ kind: stri
 
   if (error) {
     console.error(`form ${k} insert failed`, error.message);
-    return json({ ok: false, message: "Something went wrong saving your submission. Please try again." }, 500);
+    return reply({ ok: false, message: "Something went wrong saving your submission. Please try again." }, 500);
   }
-  return json({ ok: true, message: SUCCESS[k] });
+  return reply({ ok: true, message: SUCCESS[k] });
 }
