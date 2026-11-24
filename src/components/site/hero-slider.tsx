@@ -117,7 +117,7 @@ export function HeroSlider({
       <div className="nl-container flex flex-1 flex-col justify-end pb-10 pt-[calc(var(--nl-header-h)+3rem)] md:justify-center md:pb-0">
         <div key={slide.index} className={`max-w-[58rem] ${slide.video ? "lg:max-w-[46%]" : ""}`} aria-live="polite">
           <p className="nl-label nl-label--light nl-label--plain nl-pill-eyebrow mb-6 animate-[fadeUp_.9s_var(--nl-ease)_both]">
-            {slide.index} · {slide.label}
+            {slide.label}
           </p>
           <h1 className="nl-display whitespace-pre-line animate-[fadeUp_1s_var(--nl-ease)_.05s_both]">{(() => { const [first, ...rest] = slide.headline.split(NL); return <>{first}{rest.length > 0 && <>{NL}<span className="text-[#e2c58e]">{rest.join(NL)}</span></>}</>; })()}</h1>
           <p className="mt-6 max-w-[38rem] text-[1.05rem] leading-relaxed text-white/85 md:text-[1.15rem] animate-[fadeUp_1s_var(--nl-ease)_.15s_both]">
@@ -181,27 +181,21 @@ export function HeroSlider({
           ))}
         </div>
         <div className="nl-container flex items-stretch">
-          <div className="grid flex-1 md:grid-cols-3" role="tablist" aria-label="Chapters">
+          <div className="flex flex-1 items-center gap-2.5" role="tablist" aria-label="Slides">
             {slides.map((s, i) => (
               <button
                 key={s.index}
+                type="button"
                 role="tab"
                 aria-selected={i === active}
                 aria-controls="hero-panel"
+                aria-label={s.label}
                 onClick={() => go(i)}
-                className={`py-4 pr-6 text-left transition-opacity duration-500 md:py-5 ${i === active ? "opacity-100" : "hidden opacity-45 hover:opacity-80 md:block"}`}
-              >
-                <span className="block text-[0.7rem] font-bold uppercase tracking-[0.14em] text-white">
-                  {s.index} · {s.label}
-                </span>
-                <span className="mt-1 block text-xs text-white/60">{s.caption}</span>
-              </button>
+                className={`h-2.5 rounded-full transition-all duration-500 ${i === active ? "w-8 bg-[#d8b879]" : "w-2.5 bg-white/40 hover:bg-white/70"}`}
+              />
             ))}
           </div>
-          <div className="flex items-center gap-4 pl-4">
-            <span className="nl-num text-xs font-semibold tracking-[0.14em] text-white/60">
-              <b className="text-white">{slides[active].index}</b> / {String(n).padStart(2, "0")}
-            </span>
+          <div className="flex items-center">
             <button type="button" onClick={() => setPlaying((p) => !p)} className="hidden h-12 w-12 items-center justify-center border-l border-white/15 text-white/80 hover:text-white sm:flex" aria-label={autoplay ? "Pause slideshow" : "Play slideshow"}>
               {autoplay ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </button>
@@ -214,7 +208,7 @@ export function HeroSlider({
           </div>
         </div>
       </div>
-      <span id="hero-panel" className="sr-only">Chapter {slides[active].index}: {slides[active].label}</span>
+      <span id="hero-panel" className="sr-only">{slides[active].label}</span>
     </section>
   );
 }
