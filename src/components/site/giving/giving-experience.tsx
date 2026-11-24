@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, ArrowUpRight, Banknote, CalendarHeart, Check, CheckCircle2, Copy, CreditCard, HandCoins, Landmark, Lock, Smartphone, X } from "lucide-react";
 import type { GivingCatalog, PaymentMethodPublic } from "@/lib/content/types";
 
@@ -474,8 +475,8 @@ function CardModal({ url, open, onClose }: { url: string; open: boolean; onClose
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [open, onClose]);
   if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[200] flex items-end justify-center bg-[#071d1b]/75 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Give by card" onClick={onClose}>
+  return createPortal(
+    <div className="fixed inset-0 z-[300] flex items-end justify-center bg-[#071d1b]/75 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Give by card" onClick={onClose}>
       <div className="flex h-[92svh] w-full max-w-[34rem] flex-col overflow-hidden rounded-t-[22px] bg-white shadow-2xl sm:h-[min(88vh,52rem)] sm:rounded-[22px]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-3 border-b border-line bg-[#0b2624] px-5 py-4 text-white">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d8b879] text-[#0b2624]"><CreditCard className="h-5 w-5" aria-hidden /></span>
@@ -495,7 +496,8 @@ function CardModal({ url, open, onClose }: { url: string; open: boolean; onClose
         )}
         <a href={url} target="_blank" rel="noopener noreferrer" className="border-t border-line px-5 py-3 text-center text-xs font-semibold text-muted hover:text-ink">Trouble loading? Open the form in a new tab ↗</a>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
