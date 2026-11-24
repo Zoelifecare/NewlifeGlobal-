@@ -308,11 +308,10 @@ export const seedHomepage: HomepageSection[] = [
       // thumbnails carry title text, and the Instagram preaching photo is of Pastor Fred Katagwa), so slide 01
       // features his published sermon as a video card until an approved photo is uploaded.
       slides: [
-        { label: "One church. One family. One hope.", caption: "Welcome home", headline: "You belong\nhere.", body: "A Church Where the Community Is Looking for You. Find your people, grow in faith, and experience the love of Jesus.", mediaId: null, alt: "", featured: true,
-          video: { id: "tsNcq0xw4pU", title: "The Development Stages of Marriage", href: "/messages/the-development-stages-of-marriage" },
-          assetNote: "Needs an approved photo of Pastor Charles Mugisha preaching. Upload it in Media and choose it here." },
+        { label: "One church. One family. One hope.", caption: "Welcome home", headline: "You belong\nhere.", body: "A Church Where the Community Is Looking for You. Find your people, grow in faith, and experience the love of Jesus.", mediaId: "ig-rw-05", alt: "The New Life Global worship team leading worship", featured: true,
+          video: { id: "tsNcq0xw4pU", title: "The Development Stages of Marriage", href: "/messages/the-development-stages-of-marriage" } },
         { label: "Faith & Worship", caption: "Our worship team", headline: "A place of love.\nA family of faith.", body: "We worship God in a lively and heartfelt atmosphere. Come worship with us every Sunday at 3:00 PM.", mediaId: "ig-rw-05", alt: "The New Life Global worship team leading worship", featured: true },
-        { label: "Community & Discipleship", caption: "Growing together as one family", headline: "Worship.\nGrow. Serve.", body: "From Sunday School to Refresh Women, we grow in Christ together and serve one another with joy.", mediaId: "ig-church-family", alt: "", featured: true },
+        { label: "Community & Discipleship", caption: "Growing together as one family", headline: "Worship.\nGrow. Serve.", body: "From Sunday School to Refresh Women, we grow in Christ together and serve one another with joy.", mediaId: "ig-rw-04", alt: "The New Life Global church family worshipping together", featured: true },
         { label: "Go & Make Disciples", caption: "Matthew 28:19", headline: "Go.\nMake disciples.", body: "Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost. Matthew 28:19", mediaId: "ig-rw-07", alt: "", featured: true },
       ],
     },
