@@ -4,12 +4,14 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/staff";
 import type { ActionResult } from "./actions";
 import type { ChurchContentValue, GivingMethod, NavItem } from "@/lib/content/types";
+import { requestWebsiteRebuild } from "@/lib/website-rebuild";
 
 const KEY = /^[a-z0-9_]{2,60}$/;
 const txt = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
 function refreshPublicSite() {
   revalidatePath("/", "layout");
+  requestWebsiteRebuild("identity");
 }
 
 function dbMessage(error: { message: string; code?: string }): string {

@@ -5,6 +5,7 @@ import { requireStaff } from "@/lib/auth/staff";
 import { MEDIA_BUCKET } from "@/lib/supabase/config";
 import type { ActionResult } from "./actions";
 import { ALLOWED_MIME, MAX_UPLOAD_BYTES } from "./media-constants";
+import { requestWebsiteRebuild } from "@/lib/website-rebuild";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PERMISSIONS = ["owner_approved", "licensed", "embed_only", "pending"];
@@ -77,6 +78,7 @@ export async function updateMedia(id: string, _prev: ActionResult | null, fd: Fo
   if (error) return { ok: false, message: "Could not save." };
   if (!count) return { ok: false, message: "You can only edit files you uploaded." };
   revalidatePath("/", "layout");
+  requestWebsiteRebuild("media");
   return { ok: true, message: "Saved." };
 }
 
@@ -90,5 +92,6 @@ export async function deleteMedia(id: string): Promise<ActionResult> {
   if (!count) return { ok: false, message: "You can only delete files you uploaded." };
   if (row?.path) await supabase.storage.from(MEDIA_BUCKET).remove([row.path]);
   revalidatePath("/", "layout");
+  requestWebsiteRebuild("media");
   return { ok: true, message: "Deleted." };
 }

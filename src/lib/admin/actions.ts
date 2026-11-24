@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/staff";
 import { fromLocalInput, getResource, slugify, type Field } from "./resources";
+import { requestWebsiteRebuild } from "@/lib/website-rebuild";
 
 export interface ActionResult {
   ok: boolean;
@@ -62,6 +63,7 @@ function parseField(f: Field, fd: FormData): { value?: unknown; error?: string; 
 }
 
 function revalidateResource(paths: string[]) {
+  if (paths.length) requestWebsiteRebuild("content");
   for (const p of paths) {
     if (p.includes("[")) revalidatePath(p, "page");
     else revalidatePath(p);

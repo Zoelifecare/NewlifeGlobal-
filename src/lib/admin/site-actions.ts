@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/staff";
 import type { ActionResult } from "./actions";
+import { requestWebsiteRebuild } from "@/lib/website-rebuild";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const txt = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -28,6 +29,7 @@ export async function saveHomepageSection(key: string, payload: {
   }).eq("key", key);
   if (error) return { ok: false, message: "Could not save this section." };
   revalidatePath("/");
+  requestWebsiteRebuild("homepage");
   return { ok: true, message: "Section saved." };
 }
 
@@ -114,5 +116,6 @@ export async function saveSettings(_prev: ActionResult | null, fd: FormData): Pr
   const { error } = await supabase.from("site_settings").upsert(rows, { onConflict: "key" });
   if (error) return { ok: false, message: "Could not save settings." };
   revalidatePath("/", "layout");
+  requestWebsiteRebuild("settings");
   return { ok: true, message: "Settings saved. The website will update within a few minutes." };
 }

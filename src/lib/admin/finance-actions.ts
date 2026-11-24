@@ -8,6 +8,7 @@ import { donorEmail, financeEmail, isEmail, type FinanceNotificationType, type G
 import { adminUrl } from "@/lib/site-url";
 import type { ActionResult } from "./actions";
 import { DONATION_METHODS as METHODS, METHOD_LABEL, NOTIFY_TYPES, PAYMENT_KINDS as KINDS, PLEDGE_STATUSES } from "./finance-constants";
+import { requestWebsiteRebuild } from "@/lib/website-rebuild";
 
 /**
  * Finance actions. Every write goes through the signed-in finance user's own session, so RLS
@@ -167,6 +168,7 @@ export async function savePaymentMethod(id: string | null, _p: ActionResult | nu
   const { error } = id && UUID.test(id) ? await supabase.from("payment_methods").update(row).eq("id", id) : await supabase.from("payment_methods").insert(row);
   if (error) return fail(pgMessage(error));
   revalidatePath("/give");
+  requestWebsiteRebuild("giving");
   return done(active ? "Saved. It is now shown on the Giving page." : "Saved. It stays hidden until you mark it active.", "/admin/giving/methods");
 }
 
@@ -177,6 +179,7 @@ export async function deleteCatalogRow(table: "payment_methods" | "giving_design
   const { error, count } = await supabase.from(table).delete({ count: "exact" }).eq("id", id);
   if (error || !count) return fail(pgMessage(error));
   revalidatePath("/give");
+  requestWebsiteRebuild("giving");
   return done("Deleted.", "/admin/giving/methods", "/admin/giving/designations", "/admin/giving/bank-accounts");
 }
 
@@ -189,6 +192,7 @@ export async function saveDesignation(id: string | null, _p: ActionResult | null
   const { error } = id && UUID.test(id) ? await supabase.from("giving_designations").update(row).eq("id", id) : await supabase.from("giving_designations").insert(row);
   if (error) return fail(error.code === "23505" ? "A designation with that name already exists." : pgMessage(error));
   revalidatePath("/give");
+  requestWebsiteRebuild("giving");
   return done("Saved.", "/admin/giving/designations");
 }
 
