@@ -10,17 +10,6 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
 ];
 
-/**
- * When PUBLIC_WEBSITE_URL is set (e.g. https://newlifeglobalaz.org), the public website lives on WordPress
- * and this app only serves /admin and the form APIs. Visitors to the app's old public pages are sent there.
- */
-const publicWebsite = process.env.PUBLIC_WEBSITE_URL?.replace(/\/+$/, "");
-const PUBLIC_PAGES: [string, string][] = [
-  ["/", "/"], ["/about", "/about/"], ["/visit", "/im-new/"], ["/ministries/:path*", "/ministries/"],
-  ["/messages/:path*", "/messages/"], ["/events/:path*", "/events/"], ["/gallery", "/gallery/"],
-  ["/prayer", "/prayer/"], ["/contact", "/contact/"], ["/give", "/give/"], ["/privacy", "/privacy-policy/"],
-];
-
 const nextConfig: NextConfig = {
   // Classic ISR (`export const revalidate`) is used instead of Cache Components; see docs/architecture.md.
   poweredByHeader: false,
@@ -36,14 +25,8 @@ const nextConfig: NextConfig = {
       "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css" },
     },
   },
-  async redirects() {
-    if (!publicWebsite) return [];
-    return PUBLIC_PAGES.map(([source, to]) => ({ source, destination: `${publicWebsite}${to}`, permanent: false }));
-  },
   async headers() {
     return [
-      // church photos may be loaded by the public WordPress website
-      { source: "/media/:path*", headers: [{ key: "Access-Control-Allow-Origin", value: "https://newlifeglobalaz.org" }] },
       { source: "/:path*", headers: securityHeaders },
       { source: "/admin/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }, { key: "Cache-Control", value: "no-store" }] },
     ];

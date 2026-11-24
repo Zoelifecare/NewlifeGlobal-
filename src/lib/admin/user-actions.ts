@@ -1,10 +1,9 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceClient, isServiceRoleConfigured } from "@/lib/supabase/admin";
 import { requireStaff } from "@/lib/auth/staff";
-import { siteUrl } from "@/lib/site-url";
+import { adminUrl } from "@/lib/site-url";
 import type { ActionResult } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -29,7 +28,7 @@ export async function inviteUser(_prev: ActionResult | null, fd: FormData): Prom
   if (role === "ministry_manager" && !UUID.test(ministry)) return { ok: false, message: "Choose the ministry this person will manage." };
 
   const svc = createSupabaseServiceClient();
-  const origin = (await headers()).get("origin") ?? siteUrl();
+  const origin = adminUrl();
   const { data, error } = await svc.auth.admin.inviteUserByEmail(email, {
     data: { full_name: name }, redirectTo: `${origin}/admin/auth/callback?next=/admin/auth/set-password`,
   });

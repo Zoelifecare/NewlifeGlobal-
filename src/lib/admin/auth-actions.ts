@@ -1,9 +1,8 @@
 "use server";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { siteUrl } from "@/lib/site-url";
+import { adminUrl } from "@/lib/site-url";
 
 export interface AuthState { error?: string; message?: string }
 
@@ -28,8 +27,7 @@ export async function requestPasswordReset(_prev: AuthState | null, fd: FormData
   if (!isSupabaseConfigured) return { error: "The database is not connected yet." };
   const email = String(fd.get("email") ?? "").trim().toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "Enter a valid email address." };
-  const h = await headers();
-  const origin = h.get("origin") ?? siteUrl();
+  const origin = adminUrl();
   const supabase = await createSupabaseServerClient();
   await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${origin}/admin/auth/callback?next=/admin/auth/set-password` });
   return { message: "If that email belongs to a staff account, a reset link is on its way." };

@@ -1,6 +1,6 @@
 import "server-only";
 import { createSupabaseServiceClient, isServiceRoleConfigured } from "@/lib/supabase/admin";
-import { siteUrl } from "@/lib/site-url";
+import { adminUrl } from "@/lib/site-url";
 import {
   donorEmail, financeEmail, resendTransport, sendWithRetry,
   type EmailMessage, type FinanceNotificationType, type GivingRecord, type Transport,
@@ -58,7 +58,7 @@ export async function notifyGiving(record: Omit<GivingRecord, "adminUrl">, opts:
   }
   try {
     const s = await settings();
-    const full: GivingRecord = { ...record, adminUrl: `${siteUrl()}${opts.adminPath}` };
+    const full: GivingRecord = { ...record, adminUrl: `${adminUrl()}${opts.adminPath}` };
     const rec = { table: opts.table, id: opts.id, reference: record.reference };
     if (s && s.enabled_types.includes(record.type)) {
       for (const to of s.recipients) await deliver("finance", record.type, financeEmail(full, to), rec);

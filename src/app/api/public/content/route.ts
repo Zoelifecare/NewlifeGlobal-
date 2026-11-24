@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import {
   getAnnouncements, getEvents, getGallery, getGivingCatalog, getLeaders, getMinistries, getSermons, getSettings, youTubeId,
 } from "@/lib/content";
-import { siteUrl } from "@/lib/site-url";
+import { adminUrl } from "@/lib/site-url";
 
 /**
  * Read-only feed of PUBLISHED church content for the public WordPress website.
@@ -12,7 +12,7 @@ import { siteUrl } from "@/lib/site-url";
  */
 export const dynamic = "force-dynamic";
 
-const abs = (u: string | null | undefined) => (!u ? null : u.startsWith("/") ? `${siteUrl()}${u}` : u);
+const abs = (u: string | null | undefined) => (!u ? null : u.startsWith("/") ? `${adminUrl()}${u}` : u);
 
 export async function GET() {
   const [settings, sermons, events, ministries, leaders, gallery, announcements, giving] = await Promise.all([

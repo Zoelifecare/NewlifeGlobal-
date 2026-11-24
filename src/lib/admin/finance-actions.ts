@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireCapability } from "@/lib/auth/staff";
 import { notifyGiving, resendLogged, sendTestNotification, emailConfigured } from "@/lib/notify";
 import { donorEmail, financeEmail, isEmail, type FinanceNotificationType, type GivingRecord } from "@/lib/notify/core";
-import { siteUrl } from "@/lib/site-url";
+import { adminUrl } from "@/lib/site-url";
 import type { ActionResult } from "./actions";
 import { DONATION_METHODS as METHODS, METHOD_LABEL, NOTIFY_TYPES, PAYMENT_KINDS as KINDS, PLEDGE_STATUSES } from "./finance-constants";
 
@@ -254,19 +254,19 @@ async function loadRecord(db: Db, table: string, id: string, type: FinanceNotifi
     const { data: p } = await db.from("pledges").select("*, designation:giving_designations(name)").eq("id", id).maybeSingle();
     if (!p) return null;
     return { type, reference: p.reference, donorName: p.donor_name, donorEmail: p.donor_email, amount: Number(p.amount), frequency: p.frequency,
-      method: p.intended_method, designation: p.designation?.name ?? null, submittedAt: p.created_at, expectedBy: p.expected_by, adminUrl: `${siteUrl()}/admin/giving/pledges/${id}` };
+      method: p.intended_method, designation: p.designation?.name ?? null, submittedAt: p.created_at, expectedBy: p.expected_by, adminUrl: `${adminUrl()}/admin/giving/pledges/${id}` };
   }
   if (table === "giving_submissions") {
     const { data: s } = await db.from("giving_submissions").select("*, designation:giving_designations(name), method:payment_methods(label)").eq("id", id).maybeSingle();
     if (!s) return null;
     return { type, reference: s.reference, donorName: s.donor_name, donorEmail: s.donor_email, amount: Number(s.amount), frequency: s.frequency,
-      method: s.method?.label ?? null, designation: s.designation?.name ?? null, submittedAt: s.created_at, adminUrl: `${siteUrl()}/admin/giving/submissions/${id}` };
+      method: s.method?.label ?? null, designation: s.designation?.name ?? null, submittedAt: s.created_at, adminUrl: `${adminUrl()}/admin/giving/submissions/${id}` };
   }
   if (table === "donations") {
     const { data: d } = await db.from("donations").select("*, designation:giving_designations(name)").eq("id", id).maybeSingle();
     if (!d) return null;
     return { type, reference: d.reference, donorName: d.donor_name, donorEmail: d.donor_email, amount: Number(d.amount), method: METHOD_LABEL[d.method],
-      designation: d.designation?.name ?? null, submittedAt: d.created_at, adminUrl: `${siteUrl()}/admin/giving/donations?q=${d.reference}` };
+      designation: d.designation?.name ?? null, submittedAt: d.created_at, adminUrl: `${adminUrl()}/admin/giving/donations?q=${d.reference}` };
   }
   return null;
 }
