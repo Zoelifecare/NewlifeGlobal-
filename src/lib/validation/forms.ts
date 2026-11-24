@@ -4,11 +4,24 @@ const optionalText = (max: number) =>
   z.string().trim().max(max).optional().transform((v) => (v ? v : undefined));
 const optionalEmail = z.string().trim().max(254).email("Enter a valid email address").optional().or(z.literal("")).transform((v) => (v ? v : undefined));
 
-/** Common anti-spam fields: honeypot `website` must stay empty; `startedAt` = when the form rendered (ms). */
+/**
+ * Common anti-spam fields: honeypot `website` must stay empty, plus how long the form took to fill.
+ * `fillMs` is measured entirely on the visitor's device, so it does not depend on the visitor's clock
+ * matching the server's. `startedAt` (when the form rendered) is the older field, still accepted.
+ */
 export const antiSpam = z.object({
   website: z.string().max(0, "Spam detected").optional().default(""),
-  startedAt: z.coerce.number().int().positive(),
-});
+  fillMs: z.coerce.number().int().min(0).optional().catch(undefined),
+  startedAt: z.coerce.number().int().positive().optional().catch(undefined),
+}).refine((v) => v.fillMs !== undefined || v.startedAt !== undefined, { message: "Missing timing" });
+
+/** True when the form was submitted faster than a person could fill it in. */
+export function filledTooFast(v: { fillMs?: number; startedAt?: number }, minMs: number, now = Date.now()) {
+  if (v.fillMs !== undefined) return v.fillMs < minMs;
+  const elapsed = now - (v.startedAt ?? now);
+  // a negative value means the visitor's clock is ahead of ours: don't punish them for it
+  return elapsed >= 0 && elapsed < minMs;
+}
 
 export const prayerSchema = z.object({
   name: optionalText(120),

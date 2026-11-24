@@ -29,7 +29,7 @@ function useSubmit(kind: "pledge" | "donation" | "confirmation") {
     setState({ status: "sending" });
     const website = (form?.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "";
     try {
-      const res = await fetch(`/api/giving/${kind}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...body, website, startedAt: startedAt.current }) });
+      const res = await fetch(`/api/giving/${kind}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...body, website, fillMs: Date.now() - startedAt.current }) });
       const result = (await res.json()) as Result;
       setState({ status: result.ok ? "done" : "error", result });
       return result;

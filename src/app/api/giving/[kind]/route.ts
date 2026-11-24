@@ -1,5 +1,5 @@
 import { NextResponse, after, type NextRequest } from "next/server";
-import { antiSpam } from "@/lib/validation/forms";
+import { antiSpam, filledTooFast } from "@/lib/validation/forms";
 import { GIVING_FORMS, type GivingFormKind } from "@/lib/validation/giving";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ kind: stri
   try { body = await req.json(); } catch { return reply({ ok: false, message: "Invalid request." }, 400); }
 
   const spam = antiSpam.safeParse(body);
-  if (!spam.success || Date.now() - spam.data.startedAt < MIN_FILL_MS) {
+  if (!spam.success || filledTooFast(spam.data, MIN_FILL_MS)) {
     return reply({ ok: true, message: "Thank you.", reference: undefined }); // bots learn nothing, nothing is stored
   }
 

@@ -13,7 +13,7 @@ export function usePublicForm(kind: FormKind) {
     const fd = new FormData(form);
     const body: Record<string, unknown> = Object.fromEntries(fd.entries());
     form.querySelectorAll<HTMLInputElement>("input[type=checkbox]").forEach((c) => (body[c.name] = c.checked));
-    body.startedAt = startedAt.current;
+    body.fillMs = Date.now() - startedAt.current;
     setState({ status: "sending" });
     try {
       const res = await fetch(`/api/forms/${kind}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });

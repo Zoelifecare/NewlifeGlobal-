@@ -252,7 +252,7 @@
       var data = {};
       new FormData(f).forEach(function (v, k) { data[k] = v; });
       f.querySelectorAll("input[type=checkbox]").forEach(function (c) { data[c.name] = c.checked; });
-      data.startedAt = started;
+      data.fillMs = Date.now() - started;
       btn.disabled = true;
       status.className = "nlg-status";
       status.textContent = "Sending…";

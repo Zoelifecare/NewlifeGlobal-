@@ -1,7 +1,7 @@
 // Validation rules for public forms (shared by client and server). Run: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { antiSpam, contactSchema, newsletterSchema, prayerSchema, visitSchema } from "../../src/lib/validation/forms.ts";
+import { antiSpam, filledTooFast, contactSchema, newsletterSchema, prayerSchema, visitSchema } from "../../src/lib/validation/forms.ts";
 
 test("prayer: name and email optional, request required", () => {
   assert.equal(prayerSchema.safeParse({ request: "Please pray for my mother" }).success, true);
@@ -32,6 +32,15 @@ test("visit: optional date/party size are validated", () => {
 test("newsletter: email required", () => {
   assert.equal(newsletterSchema.safeParse({ email: "a@b.co" }).success, true);
   assert.equal(newsletterSchema.safeParse({ email: "" }).success, false);
+});
+
+test("anti-spam: fill time is measured on the visitor's device, so clock differences don't matter", () => {
+  assert.equal(antiSpam.safeParse({ website: "", fillMs: 9000 }).success, true);
+  assert.equal(filledTooFast({ fillMs: 900 }, 2500), true);
+  assert.equal(filledTooFast({ fillMs: 9000 }, 2500), false);
+  // visitor clock 60s ahead of the server: the old startedAt field must not silently drop the message
+  assert.equal(filledTooFast({ startedAt: Date.now() + 60_000 }, 2500), false);
+  assert.equal(filledTooFast({ startedAt: Date.now() - 500 }, 2500), true);
 });
 
 test("anti-spam: honeypot must be empty and a start time present", () => {
