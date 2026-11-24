@@ -1,4 +1,5 @@
-* text=auto eol=lf
-*.jpg binary
-*.png binary
-*.ico binary
+# GitHub language statistics: count the application code, not docs or generated files
+docs/** linguist-documentation
+supabase/seed.sql linguist-generated
+supabase/identity-correction.sql linguist-generated
+public/** linguist-vendored
