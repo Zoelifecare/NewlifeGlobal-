@@ -472,10 +472,21 @@ export function GivingExperience({ catalog }: { catalog: GivingCatalog }) {
   const current = OPTIONS.find((o) => o.id === active)!;
 
   const quick = catalog.methods.filter((m) => m.kind === "zelle" || m.kind === "cashapp");
+  const card = catalog.methods.find((m) => m.kind === "online_link" && m.url && /^https:\/\//.test(m.url));
   return (
     <div className="grid gap-10">
-      {quick.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {(quick.length > 0 || card) && (
+        <div className={`grid gap-3 sm:grid-cols-2 ${card ? "xl:grid-cols-4" : "lg:grid-cols-3"}`}>
+          {card && (
+            <a href={card.url!} target="_blank" rel="noopener noreferrer" className="nl-hoverbox flex items-center gap-4 border border-[#d8b879] bg-[#d8b879] p-5 text-[#0b2624] transition-transform hover:-translate-y-0.5">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0b2624] text-[#d8b879]"><HandCoins className="h-5 w-5" aria-hidden /></span>
+              <span className="grid min-w-0 gap-0.5">
+                <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#0b2624]/70">Card · Apple Pay · Google Pay</span>
+                <span className="text-xl font-semibold">{card.label}</span>
+              </span>
+              <ArrowUpRight className="ml-auto h-5 w-5 shrink-0" aria-hidden />
+            </a>
+          )}
           {quick.map((m) => (
             <div key={m.id} className="nl-hoverbox flex items-center gap-4 border border-white/20 bg-white/10 p-5 backdrop-blur-md">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue text-blue-ink"><Smartphone className="h-5 w-5" aria-hidden /></span>
