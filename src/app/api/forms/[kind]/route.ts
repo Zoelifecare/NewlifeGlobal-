@@ -42,7 +42,9 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ kind: stri
   const spam = antiSpam.safeParse(body);
   if (!spam.success || Date.now() - spam.data.startedAt < MIN_FILL_MS) {
     // Respond like a success so bots learn nothing; nothing is stored.
-    return reply({ ok: true, message: SUCCESS[k] });
+    const r = reply({ ok: true, message: SUCCESS[k] });
+    r.headers.set("x-debug-spam", spam.success ? `t:${Date.now()}:${spam.data.startedAt}` : `p:${JSON.stringify(spam.error.issues).slice(0, 300)}`);
+    return r;
   }
 
   const parsed = FORM_SCHEMAS[k].safeParse(body);
