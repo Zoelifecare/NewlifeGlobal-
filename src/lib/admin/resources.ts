@@ -107,7 +107,7 @@ export const RESOURCES: Resource[] = [
   {
     key: "events", table: "events", label: "Events", singular: "Event",
     description: "Upcoming and past events with dates, venue and registration.",
-    titleColumn: "title", subtitle: (r) => String(r.starts_at ?? "").slice(0, 10), orderBy: { column: "starts_at", ascending: false },
+    titleColumn: "title", subtitle: (r) => (r.starts_at ? new Date(String(r.starts_at)).toLocaleString("en-US", { timeZone: "America/Phoenix", dateStyle: "medium", timeStyle: "short" }) : ""), orderBy: { column: "starts_at", ascending: false },
     publishable: true, scope: "ministry",
     fields: [
       { name: "title", label: "Event name", type: "text", required: true, max: 200 },

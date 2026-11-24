@@ -13,7 +13,7 @@ export default async function HomepageAdmin() {
   ]);
   return (
     <>
-      <PageTitle title="Homepage" description="Edit the hero, the three chapters and every homepage section. Hide or reorder sections. Featured messages and events are chosen with the “Featured” switch on each sermon or event." />
+      <PageTitle title="Homepage" description="Edit the hero slides and every homepage section. Show, hide or reorder sections with the Order number. Featured messages and events are chosen with the “Featured” switch on each sermon or event." />
       <HomepageEditor sections={(data ?? []) as never[]} media={media} />
     </>
   );
