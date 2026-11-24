@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, Banknote, CalendarHeart, Check, CheckCircle2, Copy, HandCoins, Landmark, Lock, Smartphone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Banknote, CalendarHeart, Check, CheckCircle2, Copy, CreditCard, HandCoins, Landmark, Lock, Smartphone, X } from "lucide-react";
 import type { GivingCatalog, PaymentMethodPublic } from "@/lib/content/types";
 
 /* ------------------------------------------------------------------ shared bits */
@@ -264,7 +264,7 @@ function ConfirmForm({ method, catalog, presetAmount = "", designation = "", onD
 }
 
 /* ------------------------------------------------------------------ 01 Give now */
-function GiveNow({ catalog }: { catalog: GivingCatalog }) {
+function GiveNow({ catalog, onCard }: { catalog: GivingCatalog; onCard: () => void }) {
   const methods = catalog.methods.filter((m) => m.kind !== "cash_drop");
   const [amount, setAmount] = useState("100");
   const [freq, setFreq] = useState<Freq>("one_time");
@@ -273,8 +273,6 @@ function GiveNow({ catalog }: { catalog: GivingCatalog }) {
   const [step, setStep] = useState<1 | 2>(1);
   const method = methods.find((m) => m.id === methodId);
   const recurringOk = methods.some((m) => m.supportsRecurring);
-  const intent = useSubmit("donation");
-  const [contact, setContact] = useState({ name: "", email: "" });
 
   if (!methods.length) {
     return (
@@ -313,25 +311,14 @@ function GiveNow({ catalog }: { catalog: GivingCatalog }) {
             })}
           </div>
           {method && method.kind === "online_link" && (
-            intent.state.status === "done" ? (
-              <Done title="One last step" result={intent.state.result}>
-                {method.url && <a href={method.url} target="_blank" rel="noopener noreferrer" className="nl-btn nl-btn--lg"><span>Continue to secure giving</span><ArrowUpRight className="h-4 w-4" aria-hidden /></a>}
-                <p className="m-0 text-xs text-muted">You&apos;ll complete your gift on {method.label}&apos;s secure page. This website never asks for card or bank details.</p>
-              </Done>
-            ) : (
-              <form noValidate className="grid gap-5" onSubmit={async (e) => { e.preventDefault(); await intent.submit({ ...contact, amount, frequency: freq, designationId: designation, methodId: method.id }, e.currentTarget); }}>
-                <Honeypot />
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Input label="Name" name="d-name" value={contact.name} onChange={(v) => setContact({ ...contact, name: v })} error={intent.err("name")} autoComplete="name" maxLength={120} />
-                  <Input label="Email" name="d-email" type="email" required value={contact.email} onChange={(v) => setContact({ ...contact, email: v })} error={intent.err("email")} autoComplete="email" maxLength={254} />
-                </div>
-                {intent.state.status === "error" && <p role="alert" className="m-0 border border-red-200 bg-red-50 p-3 text-sm text-red-800">{intent.state.result?.message}</p>}
-                <div className="flex flex-wrap items-center gap-4">
-                  <button type="button" onClick={() => setStep(1)} className="text-sm font-semibold text-muted hover:text-ink">← Back</button>
-                  <button type="submit" disabled={intent.state.status === "sending"} className="nl-btn nl-btn--lg"><span>{intent.state.status === "sending" ? "Saving…" : "Continue"}</span><ArrowRight className="h-4 w-4" aria-hidden /></button>
-                </div>
-              </form>
-            )
+            <div className="grid gap-4 rounded-[18px] border border-[#d8b879]/60 bg-[#f6efe0] p-5">
+              <PayBadges />
+              <p className="m-0 text-sm text-body">Give securely by credit or debit card, Apple Pay or Google Pay. Choose the amount and frequency in the secure form; you&apos;ll get a tax receipt by email.</p>
+              <div className="flex flex-wrap items-center gap-4">
+                <button type="button" onClick={() => setStep(1)} className="text-sm font-semibold text-muted hover:text-ink">← Back</button>
+                <button type="button" onClick={onCard} className="nl-btn nl-btn--dark nl-btn--lg"><span>Give by card</span><CreditCard className="h-4 w-4" aria-hidden /></button>
+              </div>
+            </div>
           )}
           {method && method.kind !== "online_link" && (
             <div className="grid gap-6">
@@ -456,13 +443,71 @@ const OPTIONS = [
 ] as const;
 type OptionId = (typeof OPTIONS)[number]["id"];
 
+/* ------------------------------------------------------------------ card giving popup (Zeffy embed) */
+/** Zeffy's embeddable version of a public form: /donation-form/<slug> -> /embed/donation-form/<slug>. */
+export function zeffyEmbedUrl(url: string) {
+  const m = url.match(/^https:\/\/www\.zeffy\.com\/(?:([a-z]{2}-[A-Z]{2})\/)?donation-form\/([\w-]+)/);
+  return m ? `https://www.zeffy.com/${m[1] ?? "en-US"}/embed/donation-form/${m[2]}` : null;
+}
+
+function PayBadges({ dark = false }: { dark?: boolean }) {
+  const base = `inline-flex h-6 items-center rounded-[5px] px-1.5 text-[0.62rem] font-extrabold leading-none tracking-tight ${dark ? "bg-white/95" : "bg-white ring-1 ring-black/10"}`;
+  return (
+    <span className="flex flex-wrap items-center gap-1.5" aria-label="Visa, Mastercard, American Express, Apple Pay, Google Pay">
+      <span className={`${base} italic text-[#1a1f71]`}>VISA</span>
+      <span className={`${base} gap-0`} aria-hidden><span className="h-3.5 w-3.5 rounded-full bg-[#eb001b]" /><span className="-ml-1.5 h-3.5 w-3.5 rounded-full bg-[#f79e1b] mix-blend-multiply" /></span>
+      <span className={`${base} !bg-[#2e77bc] text-white`}>AMEX</span>
+      <span className={`${base} !bg-black text-white`}>Apple&nbsp;Pay</span>
+      <span className={`${base} text-[#3c4043]`}><span className="text-[#4285f4]">G</span>&nbsp;Pay</span>
+    </span>
+  );
+}
+
+function CardModal({ url, open, onClose }: { url: string; open: boolean; onClose: () => void }) {
+  const embed = zeffyEmbedUrl(url);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-end justify-center bg-[#071d1b]/75 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Give by card" onClick={onClose}>
+      <div className="flex h-[92svh] w-full max-w-[34rem] flex-col overflow-hidden rounded-t-[22px] bg-white shadow-2xl sm:h-[min(88vh,52rem)] sm:rounded-[22px]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-3 border-b border-line bg-[#0b2624] px-5 py-4 text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d8b879] text-[#0b2624]"><CreditCard className="h-5 w-5" aria-hidden /></span>
+          <span className="grid gap-0.5">
+            <span className="font-semibold">Give by card</span>
+            <span className="flex items-center gap-1 text-xs text-white/70"><Lock className="h-3 w-3" aria-hidden />Secure checkout by Zeffy · tax receipt by email</span>
+          </span>
+          <button type="button" onClick={onClose} className="ml-auto flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/10" aria-label="Close"><X className="h-5 w-5" aria-hidden /></button>
+        </div>
+        {embed ? (
+          <iframe title="Give to New Life Global, secure donation form by Zeffy" src={embed} className="h-full w-full flex-1 border-0" allow="payment *" />
+        ) : (
+          <div className="grid flex-1 place-content-center gap-4 p-8 text-center">
+            <p className="m-0 text-body">The secure giving form opens on our giving partner&apos;s site.</p>
+            <a href={url} target="_blank" rel="noopener noreferrer" className="nl-btn nl-btn--dark mx-auto"><span>Open the giving form</span><ArrowUpRight className="h-4 w-4" aria-hidden /></a>
+          </div>
+        )}
+        <a href={url} target="_blank" rel="noopener noreferrer" className="border-t border-line px-5 py-3 text-center text-xs font-semibold text-muted hover:text-ink">Trouble loading? Open the form in a new tab ↗</a>
+      </div>
+    </div>
+  );
+}
+
 export function GivingExperience({ catalog }: { catalog: GivingCatalog }) {
   const [active, setActive] = useState<OptionId>("give");
+  const [cardOpen, setCardOpen] = useState(false);
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
-    if (OPTIONS.some((o) => o.id === hash)) setTimeout(() => setActive(hash as OptionId), 0);
+    if (hash === "card") setTimeout(() => setCardOpen(true), 0);
+    else if (OPTIONS.some((o) => o.id === hash)) setTimeout(() => setActive(hash as OptionId), 0);
   }, []);
   const choose = (id: OptionId) => {
     setActive(id);
@@ -475,37 +520,49 @@ export function GivingExperience({ catalog }: { catalog: GivingCatalog }) {
   const card = catalog.methods.find((m) => m.kind === "online_link" && m.url && /^https:\/\//.test(m.url));
   return (
     <div className="grid gap-10">
+      {card && <CardModal url={card.url!} open={cardOpen} onClose={() => { setCardOpen(false); if (location.hash === "#card") history.replaceState(null, "", location.pathname); }} />}
       {(quick.length > 0 || card) && (
-        <div className={`grid gap-3 sm:grid-cols-2 ${card ? "xl:grid-cols-4" : "lg:grid-cols-3"}`}>
+        <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
           {card && (
-            <a href={card.url!} target="_blank" rel="noopener noreferrer" className="nl-hoverbox flex items-center gap-4 border border-[#d8b879] bg-[#d8b879] p-5 text-[#0b2624] transition-transform hover:-translate-y-0.5">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0b2624] text-[#d8b879]"><HandCoins className="h-5 w-5" aria-hidden /></span>
-              <span className="grid min-w-0 gap-0.5">
-                <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#0b2624]/70">Card · Apple Pay · Google Pay</span>
-                <span className="text-xl font-semibold">{card.label}</span>
+            <button type="button" onClick={() => setCardOpen(true)}
+              className="group relative flex flex-col justify-between gap-6 overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#e7cd96_0%,#d8b879_45%,#b8955a_100%)] p-6 text-left text-[#0b2624] shadow-[0_25px_60px_-25px_rgba(0,0,0,.6)] transition-transform hover:-translate-y-1 sm:p-7">
+              <span aria-hidden className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-white/20" />
+              <span aria-hidden className="pointer-events-none absolute -bottom-20 right-16 h-40 w-40 rounded-full bg-white/10" />
+              <span className="relative flex items-start justify-between gap-4">
+                <span className="grid gap-1">
+                  <span className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#0b2624]/70">Fastest way to give</span>
+                  <span className="text-[clamp(1.6rem,3vw,2.2rem)] font-extrabold leading-none tracking-[-0.04em]">{card.label}</span>
+                  <span className="text-sm text-[#0b2624]/80">Credit or debit card, Apple Pay, Google Pay · one-time or monthly</span>
+                </span>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#0b2624] text-[#d8b879]"><CreditCard className="h-7 w-7" aria-hidden /></span>
               </span>
-              <ArrowUpRight className="ml-auto h-5 w-5 shrink-0" aria-hidden />
-            </a>
+              <span className="relative flex flex-wrap items-center justify-between gap-4">
+                <PayBadges />
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#0b2624] px-5 py-3 text-xs font-extrabold uppercase tracking-[0.12em] text-white transition-colors group-hover:bg-[#163a33]">Give now<ArrowRight className="h-4 w-4" aria-hidden /></span>
+              </span>
+            </button>
           )}
-          {quick.map((m) => (
-            <div key={m.id} className="nl-hoverbox flex items-center gap-4 border border-white/20 bg-white/10 p-5 backdrop-blur-md">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue text-blue-ink"><Smartphone className="h-5 w-5" aria-hidden /></span>
-              <span className="grid min-w-0 gap-0.5">
-                <span className="text-xs font-bold uppercase tracking-[0.16em] text-white/70">Give by {m.label}</span>
-                <span className="nl-num truncate text-xl font-medium text-white">{m.handle ?? "Number coming soon"}</span>
-              </span>
-              {m.handle && m.kind === "cashapp" ? (
-                <a href={cashAppUrl(m.handle)} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-blue hover:text-white">
-                  Open<ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                </a>
-              ) : m.handle ? <span className="ml-auto [&_button]:!text-blue"><CopyText text={m.handle} /></span> : null}
-            </div>
-          ))}
-          <button type="button" onClick={() => choose("pledge")} className="nl-hoverbox flex items-center gap-4 border border-white/20 bg-white/10 p-5 text-left backdrop-blur-md transition-colors hover:bg-white/20">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-blue-deep"><CalendarHeart className="h-5 w-5" aria-hidden /></span>
-            <span className="grid gap-0.5"><span className="text-xs font-bold uppercase tracking-[0.16em] text-white/70">Commit to give</span><span className="text-xl font-medium text-white">Make a pledge</span></span>
-            <ArrowRight className="ml-auto h-5 w-5 text-blue" aria-hidden />
-          </button>
+          <div className="grid gap-3">
+            {quick.map((m) => (
+              <div key={m.id} className="flex items-center gap-4 rounded-[18px] border border-white/15 bg-white/[0.08] p-4 backdrop-blur-md sm:p-5">
+                <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-lg font-extrabold text-white ${m.kind === "zelle" ? "bg-[#6d1ed4]" : "bg-[#00d64f]"}`} aria-hidden>{m.kind === "zelle" ? "Z" : "$"}</span>
+                <span className="grid min-w-0 gap-0.5">
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-white/65">{m.label}</span>
+                  <span className="nl-num truncate text-lg font-semibold text-white">{m.handle ?? "Number coming soon"}</span>
+                </span>
+                {m.handle && m.kind === "cashapp" ? (
+                  <a href={cashAppUrl(m.handle)} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-[0.1em] text-[#0b2624] hover:bg-[#d8b879]">Open<ArrowUpRight className="h-3.5 w-3.5" aria-hidden /></a>
+                ) : m.handle ? (
+                  <span className="ml-auto rounded-full bg-white px-4 py-2 [&_button]:!text-[#0b2624]"><CopyText text={m.handle} /></span>
+                ) : null}
+              </div>
+            ))}
+            <button type="button" onClick={() => choose("pledge")} className="flex items-center gap-4 rounded-[18px] border border-white/15 bg-white/[0.08] p-4 text-left backdrop-blur-md transition-colors hover:bg-white/[0.15] sm:p-5">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-[#0b2624]"><CalendarHeart className="h-5 w-5" aria-hidden /></span>
+              <span className="grid gap-0.5"><span className="text-xs font-bold uppercase tracking-[0.16em] text-white/65">Commit to give</span><span className="text-lg font-semibold text-white">Make a pledge</span></span>
+              <ArrowRight className="ml-auto h-5 w-5 text-[#d8b879]" aria-hidden />
+            </button>
+          </div>
         </div>
       )}
       <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
@@ -529,7 +586,7 @@ export function GivingExperience({ catalog }: { catalog: GivingCatalog }) {
         <AnimatePresence mode="wait">
           <motion.div key={active} initial={{ opacity: 0, y: reduce ? 0 : 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduce ? 0 : -8 }} transition={{ duration: reduce ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}>
             <p className="nl-label mb-4">{current.n} · {current.title}</p>
-            {active === "give" && <GiveNow catalog={catalog} />}
+            {active === "give" && <GiveNow catalog={catalog} onCard={() => setCardOpen(true)} />}
             {active === "pledge" && <Pledge catalog={catalog} />}
             {active === "cash" && <CashDrop catalog={catalog} />}
             {active === "other" && <OtherWays catalog={catalog} />}
