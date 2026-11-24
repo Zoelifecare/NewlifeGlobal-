@@ -1,15 +1,12 @@
 # New Life Global: Website & Church Admin
 
 The official website and church-management platform for **New Life Global**, a church in Chandler, Arizona.
-- **Public website:** https://newlifeglobalaz.org (this app's design)
-- **Church admin:** https://app.newlifeglobalaz.org/admin (that domain serves only the admin)
+- **Public website:** https://newlifeglobalaz.org, from the separate repository `paroteen/newlifeglobal-website`, built from GitHub and hosted on the church's web hosting
+- **Church admin:** https://app.newlifeglobalaz.org/admin (this repository, on Vercel)
 
-It has two parts:
+This repository is the **admin**: staff manage every page and setting without code, review prayer requests and messages, track giving, and control who can do what. Everything published here is rebuilt into the public website automatically, and the website's forms are saved here. See [docs/wordpress.md](docs/wordpress.md).
 
-- **The public website:** Home, About, Ministries, Messages (sermons), Events, Gallery, Prayer requests, Plan Your Visit, Contact and **Give**.
-- **The church admin (`/admin`):** staff manage every page and setting without code, review prayer requests and messages, track giving, and control who can do what. Everything published there appears on the public website.
-
-Domains, DNS and the WordPress hand-over: [docs/wordpress.md](docs/wordpress.md).
+The public pages also remain in this repository's code (served on newlifeglobal.vercel.app for previews).
 
 ---
 
