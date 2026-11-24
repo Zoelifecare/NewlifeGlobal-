@@ -43,7 +43,9 @@ New uploads go to the Supabase Storage bucket `media`. To move the seeded photos
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (**server only**) |
-| `NEXT_PUBLIC_SITE_URL` | `https://YOUR-DOMAIN` |
+| `NEXT_PUBLIC_SITE_URL` | `https://YOUR-DOMAIN` (live: `https://app.newlifeglobalaz.org`) |
+| `PUBLIC_WEBSITE_URL` | Optional. When set (live: `https://newlifeglobalaz.org`), the app's public pages redirect there and the app serves only `/admin`, forms and the content feed. See [wordpress.md](wordpress.md). |
+| `PUBLIC_FORM_ORIGINS` | Optional. Extra websites (comma-separated origins) allowed to post to the form endpoints, besides newlifeglobalaz.org. |
 | `RATE_LIMIT_SALT` | a long random string |
 
 3. Deploy. Then **Settings → Domains**: add the church domain; Vercel issues HTTPS automatically. Point DNS as Vercel instructs (A / CNAME).
