@@ -43,8 +43,8 @@ New uploads go to the Supabase Storage bucket `media`. To move the seeded photos
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (**server only**) |
-| `NEXT_PUBLIC_SITE_URL` | `https://YOUR-DOMAIN` (live: `https://app.newlifeglobalaz.org`) |
-| `PUBLIC_WEBSITE_URL` | Optional. When set (live: `https://newlifeglobalaz.org`), the app's public pages redirect there and the app serves only `/admin`, forms and the content feed. See [wordpress.md](wordpress.md). |
+| `NEXT_PUBLIC_SITE_URL` | The admin address (live: `https://app.newlifeglobalaz.org`); sign-in links and staff emails use it |
+| `PUBLIC_WEBSITE_URL` | The public address (live: `https://newlifeglobalaz.org`). When it differs from the admin address, the admin domain serves only `/admin` and `/admin` elsewhere redirects to it. See [wordpress.md](wordpress.md). |
 | `PUBLIC_FORM_ORIGINS` | Optional. Extra websites (comma-separated origins) allowed to post to the form endpoints, besides newlifeglobalaz.org. |
 | `RATE_LIMIT_SALT` | a long random string |
 

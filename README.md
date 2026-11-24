@@ -1,14 +1,15 @@
 # New Life Global: Website & Church Admin
 
 The official website and church-management platform for **New Life Global**, a church in Chandler, Arizona.
-- **Public website:** https://newlifeglobalaz.org (WordPress)
-- **Church admin:** https://app.newlifeglobalaz.org/admin (this app)
+- **Public website:** https://newlifeglobalaz.org (this app's design)
+- **Church admin:** https://app.newlifeglobalaz.org/admin (that domain serves only the admin)
 
-How the two fit together:
+It has two parts:
 
-- **The church admin (`/admin`):** staff add and edit messages, events, ministries, leaders, gallery, announcements, service times and giving methods; review prayer requests, messages and giving; and control who can do what.
-- **The public website (WordPress):** the pages and their wording live in WordPress. Their live sections (messages, events, ministries, gallery, giving, contact details) and every form come from this app through `/embed.js`, so anything staff publish in the admin appears on WordPress within about a minute, and every form submission lands in the admin. See [docs/wordpress.md](docs/wordpress.md).
-- This app's own public pages still exist in the code; while `PUBLIC_WEBSITE_URL` is set they redirect to WordPress.
+- **The public website:** Home, About, Ministries, Messages (sermons), Events, Gallery, Prayer requests, Plan Your Visit, Contact and **Give**.
+- **The church admin (`/admin`):** staff manage every page and setting without code, review prayer requests and messages, track giving, and control who can do what. Everything published there appears on the public website.
+
+Domains, DNS and the WordPress hand-over: [docs/wordpress.md](docs/wordpress.md).
 
 ---
 
