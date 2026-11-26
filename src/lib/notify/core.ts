@@ -39,7 +39,7 @@ export interface GivingRecord {
 /** Types that describe money actually received (confirmed donations). */
 export const RECEIVED: FinanceNotificationType[] = ["online_payment", "cash_recorded", "donation_recorded"];
 
-export interface EmailMessage { to: string; subject: string; text: string; html: string }
+export interface EmailMessage { to: string; subject: string; text: string; html: string; replyTo?: string }
 
 const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 const when = (iso: string) => new Date(iso).toLocaleString("en-US", { timeZone: "America/Phoenix", dateStyle: "medium", timeStyle: "short" });
@@ -48,10 +48,10 @@ const FREQ: Record<string, string> = { one_time: "One time", weekly: "Weekly", m
 
 function layout(title: string, rows: [string, string][], intro: string, footer: string, cta?: { label: string; url: string }) {
   const text = [intro, "", ...rows.map(([k, v]) => `${k}: ${v}`), "", cta ? `${cta.label}: ${cta.url}` : "", footer].filter((l) => l !== undefined).join("\n");
-  const html = `<!doctype html><html><body style="margin:0;background:#f6f8fa;font-family:Helvetica,Arial,sans-serif;color:#001b3d">
+  const html = `<!doctype html><html><body style="margin:0;background:#f6f8fa;font-family:Helvetica,Arial,sans-serif;color:#0b2624">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e2e6ea">
-<tr><td style="background:#001b3d;color:#ffffff;padding:20px 28px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:700">New Life Global</td></tr>
+<tr><td style="background:#0b2624;color:#ffffff;padding:20px 28px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:700">New Life Global</td></tr>
 <tr><td style="padding:28px">
 <h1 style="margin:0 0 12px;font-size:22px;font-weight:600">${esc(title)}</h1>
 <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#4c515a">${esc(intro)}</p>
@@ -117,6 +117,39 @@ export function donorEmail(r: GivingRecord, to: string): EmailMessage {
   return { to, subject, text, html };
 }
 
+// ------------------------------------------------------------------ website message alerts
+
+export type WebsiteMessageKind = "contact" | "visit" | "prayer";
+
+/**
+ * Alert to the church office that a website form was submitted. Contact and visit alerts include what the
+ * visitor typed (so staff can reply straight from their inbox; Reply goes to the visitor). Prayer alerts
+ * never include the request or the person's details: those stay confidential in the admin.
+ */
+export function websiteMessageEmail(kind: WebsiteMessageKind, v: Record<string, unknown>, to: string, adminLink: string, at: string): EmailMessage {
+  const str = (x: unknown) => (typeof x === "string" && x.trim() ? x.trim() : null);
+  const footer = "Sent by the New Life Global website. Mark it as replied in the admin so the team knows it is handled.";
+  if (kind === "prayer") {
+    const { text, html } = layout("New prayer request", [["Received", when(at)]],
+      "A new prayer request was sent through the website. It is confidential, so its details are only in the admin.",
+      "Sent by the New Life Global website.", { label: "Open prayer requests", url: adminLink });
+    return { to, subject: "New prayer request (website)", text, html };
+  }
+  const name = str(v.name) ?? "Someone";
+  const rows: [string, string][] = [["Name", name], ["Email", str(v.email) ?? "—"]];
+  if (str(v.phone)) rows.push(["Phone", str(v.phone)!]);
+  if (kind === "visit") {
+    if (str(v.visitDate)) rows.push(["Planned date", str(v.visitDate)!]);
+    if (v.partySize) rows.push(["Number of people", String(v.partySize)]);
+  } else if (str(v.subject)) rows.push(["Subject", str(v.subject)!]);
+  rows.push(["Message", str(v.message) ?? "—"], ["Received", when(at)]);
+  const title = kind === "visit" ? `${name} is planning a visit` : `New message from ${name}`;
+  const subject = kind === "visit" ? `Plan a visit: ${name}` : `Website message: ${str(v.subject) ?? name}`;
+  const intro = kind === "visit" ? "Someone let us know they are coming. Reply to this email to welcome them." : "A new message was sent through the website contact form. Reply to this email to answer them.";
+  const { text, html } = layout(title, rows, intro, footer, { label: "Open in the admin", url: adminLink });
+  return { to, subject: subject.slice(0, 150), text, html, replyTo: str(v.email) ?? undefined };
+}
+
 export interface SendResult { ok: boolean; providerId?: string; error?: string }
 export type Transport = (msg: EmailMessage) => Promise<SendResult>;
 
@@ -127,7 +160,7 @@ export function resendTransport(apiKey: string, from: string, fetchImpl: typeof 
       const res = await fetchImpl("https://api.resend.com/emails", {
         method: "POST",
         headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-        body: JSON.stringify({ from, to: [msg.to], subject: msg.subject, text: msg.text, html: msg.html }),
+        body: JSON.stringify({ from, to: [msg.to], subject: msg.subject, text: msg.text, html: msg.html, ...(msg.replyTo ? { reply_to: msg.replyTo } : {}) }),
       });
       const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
       if (!res.ok) return { ok: false, error: `${res.status} ${body.message ?? res.statusText}`.slice(0, 300) };

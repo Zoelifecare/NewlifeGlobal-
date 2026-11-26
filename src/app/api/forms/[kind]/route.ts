@@ -1,9 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, after, type NextRequest } from "next/server";
 import { FORM_SCHEMAS, antiSpam, filledTooFast, type FormKind, type FormResult } from "@/lib/validation/forms";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import { MIN_FILL_MS, allowRequest, clientKey } from "@/lib/security/rate-limit";
 import { corsHeaders, originAllowed, preflight } from "@/lib/security/cors";
+import { notifyWebsiteMessage } from "@/lib/notify";
 
 const LIMITS: Record<FormKind, [number, number]> = {
   prayer: [5, 600], contact: [5, 600], visit: [5, 600], newsletter: [5, 3600],
@@ -85,5 +86,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ kind: stri
     console.error(`form ${k} insert failed`, error.message);
     return reply({ ok: false, message: "Something went wrong saving your submission. Please try again." }, 500);
   }
+  // alert the church office after the response (newsletter sign-ups do not need an alert)
+  if (k !== "newsletter") after(() => notifyWebsiteMessage(k, v));
   return reply({ ok: true, message: SUCCESS[k] });
 }

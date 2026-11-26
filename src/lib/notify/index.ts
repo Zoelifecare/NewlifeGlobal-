@@ -2,8 +2,8 @@ import "server-only";
 import { createSupabaseServiceClient, isServiceRoleConfigured } from "@/lib/supabase/admin";
 import { adminUrl } from "@/lib/site-url";
 import {
-  donorEmail, financeEmail, resendTransport, sendWithRetry,
-  type EmailMessage, type FinanceNotificationType, type GivingRecord, type Transport,
+  donorEmail, financeEmail, isEmail, resendTransport, sendWithRetry, websiteMessageEmail,
+  type EmailMessage, type FinanceNotificationType, type GivingRecord, type Transport, type WebsiteMessageKind,
 } from "./core";
 
 /**
@@ -101,6 +101,29 @@ export async function sendTestNotification(recipients: string[]) {
     if (ok) sent++;
   }
   return sent;
+}
+
+/**
+ * Email the church office about a website message (contact, plan a visit, prayer).
+ * Recipients: MESSAGE_ALERTS_TO (comma-separated), default support@newlifeglobalaz.org.
+ * Sender: MESSAGE_ALERTS_FROM, else EMAIL_FROM. Never throws; the message is already saved in the admin.
+ */
+export async function notifyWebsiteMessage(kind: WebsiteMessageKind, values: Record<string, unknown>) {
+  const key = process.env.RESEND_API_KEY;
+  const from = process.env.MESSAGE_ALERTS_FROM || process.env.EMAIL_FROM;
+  if (!key || !from) return;
+  const recipients = (process.env.MESSAGE_ALERTS_TO || "support@newlifeglobalaz.org").split(",").map((s) => s.trim()).filter(isEmail);
+  const link = `${adminUrl()}${kind === "prayer" ? "/admin/prayer" : "/admin/messages"}`;
+  const t = resendTransport(key, from);
+  const at = new Date().toISOString();
+  for (const to of recipients) {
+    try {
+      const r = await sendWithRetry(t, websiteMessageEmail(kind, values, to, link, at));
+      if (!r.ok) console.error(`[notify] ${kind} alert to ${to} failed:`, r.error);
+    } catch (e) {
+      console.error("[notify] website message alert error", e);
+    }
+  }
 }
 
 export type { FinanceNotificationType };
