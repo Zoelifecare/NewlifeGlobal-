@@ -34,3 +34,35 @@ test("visit alert: shows the planned date and party size", () => {
   assert.match(m.text, /2026-12-06/);
   assert.match(m.text, /Number of people: 3/);
 });
+
+import { resendTransport, testSender } from "../../src/lib/notify/core.ts";
+
+test("test sender keeps the display name", () => {
+  assert.equal(testSender("New Life Global <give@newlifeglobalaz.org>"), "New Life Global <onboarding@resend.dev>");
+  assert.equal(testSender("give@newlifeglobalaz.org"), "onboarding@resend.dev");
+});
+
+test("transport retries from Resend's test sender when the domain is not verified", async () => {
+  const froms = [];
+  const fake = async (_url, init) => {
+    const body = JSON.parse(init.body);
+    froms.push(body.from);
+    if (body.from.includes("newlifeglobalaz.org")) {
+      return new Response(JSON.stringify({ message: "The newlifeglobalaz.org domain is not verified. Please, add and verify your domain." }), { status: 403 });
+    }
+    return new Response(JSON.stringify({ id: "em_1" }), { status: 200 });
+  };
+  const t = resendTransport("re_test", "New Life Global <support@newlifeglobalaz.org>", fake);
+  const r = await t({ to: "support@newlifeglobalaz.org", subject: "s", text: "t", html: "h" });
+  assert.equal(r.ok, true);
+  assert.equal(r.providerId, "em_1");
+  assert.deepEqual(froms, ["New Life Global <support@newlifeglobalaz.org>", "New Life Global <onboarding@resend.dev>"]);
+});
+
+test("transport does not retry other errors", async () => {
+  let calls = 0;
+  const fake = async () => { calls++; return new Response(JSON.stringify({ message: "Invalid `to` field" }), { status: 422 }); };
+  const r = await resendTransport("re_test", "A <a@b.org>", fake)({ to: "x", subject: "s", text: "t", html: "h" });
+  assert.equal(r.ok, false);
+  assert.equal(calls, 1);
+});

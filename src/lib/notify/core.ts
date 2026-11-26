@@ -153,21 +153,48 @@ export function websiteMessageEmail(kind: WebsiteMessageKind, v: Record<string, 
 export interface SendResult { ok: boolean; providerId?: string; error?: string }
 export type Transport = (msg: EmailMessage) => Promise<SendResult>;
 
-/** Resend (https://resend.com) REST transport. Credentials come from server env vars only. */
+/** Resend's shared test sender: works before the church domain is verified (delivers only to the account owner). */
+export const RESEND_TEST_SENDER = "onboarding@resend.dev";
+
+/** "New Life Global <give@x.org>" -> "New Life Global <onboarding@resend.dev>" */
+export function testSender(from: string) {
+  const name = from.match(/^\s*"?([^"<]*?)"?\s*</)?.[1]?.trim();
+  return name ? `${name} <${RESEND_TEST_SENDER}>` : RESEND_TEST_SENDER;
+}
+
+/**
+ * Resend (https://resend.com) REST transport. Credentials come from server env vars only.
+ * If Resend refuses the sender because the domain is not verified yet, it retries once from Resend's
+ * test sender, so emails to the account owner (support@) still arrive. Once the domain is verified
+ * the real sender is used again automatically.
+ */
 export function resendTransport(apiKey: string, from: string, fetchImpl: typeof fetch = fetch): Transport {
-  return async (msg) => {
+  const send = async (sender: string, msg: EmailMessage): Promise<SendResult & { unverified?: boolean }> => {
     try {
       const res = await fetchImpl("https://api.resend.com/emails", {
         method: "POST",
         headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-        body: JSON.stringify({ from, to: [msg.to], subject: msg.subject, text: msg.text, html: msg.html, ...(msg.replyTo ? { reply_to: msg.replyTo } : {}) }),
+        body: JSON.stringify({ from: sender, to: [msg.to], subject: msg.subject, text: msg.text, html: msg.html, ...(msg.replyTo ? { reply_to: msg.replyTo } : {}) }),
       });
       const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
-      if (!res.ok) return { ok: false, error: `${res.status} ${body.message ?? res.statusText}`.slice(0, 300) };
+      if (!res.ok) {
+        const unverified = res.status === 403 && /not verified|verify a domain|domain is not/i.test(body.message ?? "");
+        return { ok: false, unverified, error: `${res.status} ${body.message ?? res.statusText}`.slice(0, 300) };
+      }
       return { ok: true, providerId: body.id };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message.slice(0, 300) : "network error" };
     }
+  };
+  return async (msg) => {
+    const first = await send(from, msg);
+    if (first.ok || !first.unverified || from.includes(RESEND_TEST_SENDER)) {
+      const { unverified: _u, ...r } = first; // eslint-disable-line @typescript-eslint/no-unused-vars
+      return r;
+    }
+    const second = await send(testSender(from), msg);
+    const { unverified: _u2, ...r2 } = second; // eslint-disable-line @typescript-eslint/no-unused-vars
+    return r2.ok ? r2 : { ...r2, error: `${r2.error} (domain not verified yet; Resend's test sender only delivers to the Resend account email)` };
   };
 }
 
